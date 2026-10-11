@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct, getProducts } from "@/lib/store-data";
+import { getProduct, getProducts } from "@/lib/store-queries";
 import { ProductView } from "@/components/store/ProductView";
 
 export async function generateStaticParams() {

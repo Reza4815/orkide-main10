@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   BadgeCheck,
   ChevronLeft,
+  ChevronRight,
   Headset,
   Mail,
   Newspaper,
@@ -25,92 +26,182 @@ import { SafeImage } from "@/components/SafeImage";
 
 /* ---------------------------------- Hero ---------------------------------- */
 
+const GRAIN_URL =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E\")";
+
 export function Hero({ banners }: { banners: Banner[] }) {
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const count = banners.length;
 
   useEffect(() => {
-    if (count < 2) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % count), 6000);
-    return () => clearInterval(t);
-  }, [count]);
+    if (count < 2 || paused) return;
+    const t = setTimeout(() => setActive((a) => (a + 1) % count), 6000);
+    return () => clearTimeout(t);
+  }, [count, active, paused]);
 
   if (count === 0) return null;
+  const b = banners[active];
+  const go = (dir: number) => setActive((a) => (a + dir + count) % count);
 
   return (
-    <section className="container-shop mt-4 animate-fade-in md:mt-6">
-      <div className="relative h-[440px] overflow-hidden rounded-3xl border border-border/60 bg-blush shadow-lift md:h-[480px]">
-        {banners.map((b, i) => (
-          <div
-            key={b.id}
-            className={cn(
-              "absolute inset-0 transition-opacity duration-700",
-              i === active ? "opacity-100" : "pointer-events-none opacity-0",
-            )}
-          >
-            <div className="grid h-full md:grid-cols-2">
-              <div className="relative z-10 flex flex-col items-start justify-center gap-4 p-8 md:gap-5 md:p-14">
-                <span className="animate-fade-up inline-flex w-fit items-center gap-1.5 rounded-full bg-background/70 px-3 py-1 text-[11px] font-semibold text-primary backdrop-blur">
-                  <Sparkles className="size-3" />
-                  {b.badge}
-                </span>
-                <h1 className="animate-fade-up text-2xl font-black leading-[1.35] tracking-tight text-ink md:text-[2.6rem] md:leading-[1.3]" style={{ animationDelay: "80ms" }}>
-                  {b.title}
-                </h1>
-                <p className="animate-fade-up max-w-md text-xs leading-relaxed text-muted-foreground md:text-sm" style={{ animationDelay: "160ms" }}>
-                  {b.subtitle}
-                </p>
-                <div className="animate-fade-up flex items-center gap-2" style={{ animationDelay: "240ms" }}>
-                  <Button asChild size="lg">
-                    <Link href={b.ctaHref}>
-                      {b.ctaLabel}
-                      <ChevronLeft />
-                    </Link>
-                  </Button>
-                  <Button asChild variant="ghost" size="lg" className="text-muted-foreground">
-                    <Link href="/shop?sort=discount">تخفیف‌های ویژه</Link>
-                  </Button>
-                </div>
-              </div>
-              <div className="absolute inset-0 md:relative md:inset-auto">
-                <SafeImage
-                  src={b.image}
-                  alt={b.title}
-                  fill
-                  priority={i === 0}
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="opacity-25 md:opacity-100"
-                />
-                <div className="absolute inset-0 bg-gradient-to-l from-blush via-blush/40 to-transparent md:bg-none" />
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* soft gradient wash over the whole slide */}
+    <section
+      aria-roledescription="carousel"
+      aria-label="بنرهای ارکیده"
+      className="container-shop animate-fade-in pt-3 md:pt-5"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative">
+        {/* rose glow behind the frame */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-primary-soft/40 via-transparent to-primary/10"
+          className="pointer-events-none absolute -inset-3 -z-10 rounded-[3rem] bg-gradient-to-tr from-primary/25 via-primary-soft/25 to-transparent opacity-70 blur-2xl"
         />
 
-        {count > 1 && (
-          <div className="absolute bottom-5 start-8 z-20 flex items-center gap-1.5">
-            {banners.map((b, i) => (
-              <button
-                key={b.id}
-                type="button"
-                aria-label={`اسلاید ${toFa(i + 1)}`}
-                onClick={() => setActive(i)}
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  i === active
-                    ? "w-6 bg-primary shadow-[0_0_14px_2px_rgba(232,168,184,0.85)] ring-4 ring-primary/25"
-                    : "w-1.5 bg-ink/20 hover:bg-ink/40",
-                )}
+        <div className="relative h-[460px] overflow-hidden rounded-[1.75rem] bg-surface-dark shadow-[0_50px_100px_-50px_oklch(0.55_0.12_5/0.55)] ring-1 ring-white/15 rounded-bl-[4rem] rounded-tr-[4rem] sm:h-[500px] md:h-[560px] md:rounded-[2.75rem] md:rounded-bl-[6.5rem] md:rounded-tr-[6.5rem] lg:h-[600px]">
+          {/* slides with slow Ken Burns zoom on the active one */}
+          {banners.map((slide, i) => (
+            <div
+              key={slide.id}
+              aria-hidden={i !== active}
+              className={cn(
+                "absolute inset-0 transition-all duration-1000 ease-out",
+                i === active ? "scale-100 opacity-100" : "scale-105 opacity-0",
+              )}
+            >
+              <SafeImage
+                src={slide.image}
+                alt={slide.title}
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className={cn("object-cover", i === active && "animate-kenburns")}
               />
-            ))}
+            </div>
+          ))}
+
+          {/* readability overlays: bottom wash + start-side vignette */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-l from-black/50 via-transparent to-transparent"
+          />
+
+          {/* film grain */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
+            style={{ backgroundImage: GRAIN_URL }}
+          />
+
+          {/* slide counter */}
+          {count > 1 && (
+            <div
+              aria-hidden="true"
+              dir="ltr"
+              className="absolute top-6 end-7 z-20 flex items-center gap-1.5 text-[11px] font-medium tracking-[0.3em] text-white/70 md:top-8 md:end-10"
+            >
+              <span className="tabular-nums text-white">{toFa(active + 1)}</span>
+              <span className="text-white/40">/</span>
+              <span className="tabular-nums">{toFa(count)}</span>
+            </div>
+          )}
+
+          {/* editorial content block, RTL start-aligned */}
+          <div
+            key={b.id}
+            className="absolute inset-0 z-10 flex flex-col items-start justify-end gap-3.5 p-7 pb-24 text-start md:justify-center md:gap-5 md:p-14"
+          >
+            {b.badge && (
+              <span
+                className="animate-fade-up inline-flex w-fit items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md"
+              >
+                <Sparkles className="size-3 text-primary-soft" />
+                {b.badge}
+              </span>
+            )}
+            <h1
+              className="animate-fade-up max-w-xl text-[1.7rem] font-black leading-snug text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] md:text-[2.75rem] md:leading-[1.3]"
+              style={{ animationDelay: "80ms" }}
+            >
+              {b.title}
+            </h1>
+            <span
+              aria-hidden="true"
+              className="animate-fade-up h-[3px] w-14 rounded-full bg-gradient-to-l from-primary via-primary-soft to-transparent"
+              style={{ animationDelay: "140ms" }}
+            />
+            <p
+              className="animate-fade-up line-clamp-2 max-w-lg text-xs leading-relaxed text-white/80 md:text-sm"
+              style={{ animationDelay: "180ms" }}
+            >
+              {b.subtitle}
+            </p>
+            <div className="animate-fade-up pt-1.5" style={{ animationDelay: "260ms" }}>
+              <Button
+                asChild
+                size="lg"
+                className="h-12 rounded-full bg-background px-8 text-ink shadow-lg hover:bg-white hover:text-ink"
+              >
+                <Link href={b.ctaHref}>
+                  {b.ctaLabel}
+                  <ChevronLeft className="size-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
-        )}
+
+          {/* animated progress segments */}
+          {count > 1 && (
+            <div
+              dir="ltr"
+              className="absolute bottom-7 start-7 z-20 flex items-center gap-2 md:start-14"
+            >
+              {banners.map((slide, i) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  aria-label={`اسلاید ${toFa(i + 1)}`}
+                  onClick={() => setActive(i)}
+                  className="h-[3px] w-10 overflow-hidden rounded-full bg-white/25 transition-colors hover:bg-white/45 md:w-14"
+                >
+                  {i === active && (
+                    <span
+                      className="block h-full w-full origin-left rounded-full bg-white animate-hero-progress"
+                      style={{ animationPlayState: paused ? "paused" : "running" }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* glass navigation arrows */}
+          {count > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="اسلاید قبلی"
+                onClick={() => go(-1)}
+                className="absolute top-1/2 end-4 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/25 md:grid"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+              <button
+                type="button"
+                aria-label="اسلاید بعدی"
+                onClick={() => go(1)}
+                className="absolute top-1/2 start-4 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/25 md:grid"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

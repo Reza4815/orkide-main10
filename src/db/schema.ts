@@ -47,6 +47,19 @@ export const siteImages = pgTable("site_images", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const homepageSections = pgTable("homepage_sections", {
+  id: varchar("id", { length: 50 }).primaryKey(),
+  type: varchar("type", { length: 30 }).notNull(),
+  title: text("title"),
+  subtitle: text("subtitle"),
+  config: jsonb("config").$type<{
+    source?: string;
+    limit?: number;
+    layout?: string;
+  }>(),
+  active: boolean("active").notNull().default(true),
+});
+
 export const products = pgTable("products", {
   id: varchar("id", { length: 50 }).primaryKey(),
   slug: varchar("slug", { length: 120 }).notNull().unique(),

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   Boxes,
   Home,
+  Image as ImageIcon,
   Images,
   LayoutDashboard,
   LogOut,
@@ -32,6 +33,7 @@ const nav = [
   { href: "/admin/blog", label: "وبلاگ", icon: Newspaper },
   { href: "/admin/banners", label: "بنرها", icon: Images },
   { href: "/admin/catalog", label: "کاتالوگ", icon: Boxes },
+  { href: "/admin/site-images", label: "تصاویر سایت", icon: ImageIcon },
   { href: "/admin/sections", label: "سکشن‌های صفحه اصلی", icon: PanelsTopLeft },
   { href: "/admin/settings", label: "تنظیمات", icon: Settings },
 ];

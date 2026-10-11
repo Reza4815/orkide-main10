@@ -61,6 +61,8 @@
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.9s ease both;
   --animate-float: float 7s ease-in-out infinite;
+  --animate-kenburns: kenburns 9s ease-out forwards;
+  --animate-hero-progress: hero-progress 6s linear forwards;
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(18px); }
     to { opacity: 1; transform: translateY(0); }
@@ -72,6 +74,14 @@
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-12px); }
+  }
+  @keyframes kenburns {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to { transform: scale(1.1) translate3d(-1%, -1%, 0); }
+  }
+  @keyframes hero-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 }
 

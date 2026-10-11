@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone, Send, ShieldCheck } from "lucide-react";
-import { getCategories, getSettings } from "@/lib/store-data";
+import { getCategories, getSettings } from "@/lib/store-queries";
 import { LogoBlock } from "./Logo";
 
 function InstagramIcon({ className }: { className?: string }) {

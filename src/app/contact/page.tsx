@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Clock, Headset, Mail, MapPin, Phone, Send } from "lucide-react";
 import { toast } from "sonner";
-import { settingsQuery } from "@/lib/store-data";
+import { settingsQuery } from "@/lib/queries.client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

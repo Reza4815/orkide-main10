@@ -1,3 +1,7 @@
+"use client";
+
+import { useSiteImage } from "@/lib/use-site-image";
+import { isUploadSrc } from "@/components/SafeImage";
 import { cn } from "@/lib/utils";
 
 export function LogoMark({ className }: { className?: string }) {
@@ -24,17 +28,23 @@ export function LogoMark({ className }: { className?: string }) {
 }
 
 export function LogoBlock({ light = false }: { light?: boolean }) {
+  const logo = useSiteImage("logo", "/logo.svg");
   return (
     <div className="flex items-center gap-2.5">
       <div
         className={cn(
-          "grid size-10 place-items-center rounded-full shadow-[0_8px_24px_-12px_rgba(232,168,184,0.9)] transition-all duration-300",
+          "grid size-10 place-items-center overflow-hidden rounded-full shadow-[0_8px_24px_-12px_rgba(232,168,184,0.9)] transition-all duration-300",
           light
             ? "bg-background/10 text-background"
             : "bg-gradient-to-br from-primary-soft via-primary to-primary-deep text-primary-foreground",
         )}
       >
-        <LogoMark />
+        {isUploadSrc(logo) ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="لوگوی ارکیده" className="size-full object-cover" />
+        ) : (
+          <LogoMark />
+        )}
       </div>
       <div className="flex flex-col leading-tight">
         <span className={cn("text-[15px] font-black", light ? "text-background" : "text-ink")}>

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, Search, ShoppingBag, User } from "lucide-react";
-import { categoriesQuery, menuQuery } from "@/lib/store-data";
+import { categoriesQuery, menuQuery } from "@/lib/queries.client";
 import { useCart } from "@/lib/cart";
 import { toFa } from "@/lib/format";
 import { cn } from "@/lib/utils";

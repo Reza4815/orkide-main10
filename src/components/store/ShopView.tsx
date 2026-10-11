@@ -8,9 +8,11 @@ import {
   allProductsQuery,
   brandsQuery,
   categoriesQuery,
-  type Brand,
-  type Category,
-  type Product,
+} from "@/lib/queries.client";
+import type {
+  Brand,
+  Category,
+  Product,
 } from "@/lib/store-data";
 import { formatToman, toFa } from "@/lib/format";
 import { cn } from "@/lib/utils";

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarDays, ChevronLeft, Clock, User } from "lucide-react";
-import { getBlogPost, getBlogPosts } from "@/lib/store-data";
+import { getBlogPost, getBlogPosts } from "@/lib/store-queries";
 import { formatFaDate, toFa } from "@/lib/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";

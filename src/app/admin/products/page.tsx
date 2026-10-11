@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { allProductsQuery, categoriesQuery, brandsQuery, type Product } from "@/lib/store-data";
+import { allProductsQuery, brandsQuery, categoriesQuery } from "@/lib/queries.client";
+import type { Product } from "@/lib/store-data";
 import { formatToman, toFa } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { SafeImage } from "@/components/SafeImage";
@@ -50,7 +51,7 @@ type Draft = {
   brandId: string;
   stock: string;
   description: string;
-  image: string | null;
+  images: string[];
 };
 
 const emptyDraft: Draft = {
@@ -61,10 +62,20 @@ const emptyDraft: Draft = {
   brandId: "",
   stock: "",
   description: "",
-  image: null,
+  images: [],
 };
 
+async function putProduct(body: Product) {
+  const res = await fetch("/api/admin/products", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`PUT failed: ${res.status}`);
+}
+
 export default function AdminProductsPage() {
+  const qc = useQueryClient();
   const { data: seed = [] } = useQuery(allProductsQuery);
   const { data: categories = [] } = useQuery(categoriesQuery);
   const { data: brands = [] } = useQuery(brandsQuery);
@@ -88,6 +99,11 @@ export default function AdminProductsPage() {
     setDialogOpen(true);
   };
 
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["all-products"] });
+    qc.invalidateQueries({ queryKey: ["products"] });
+  };
+
   const openEdit = (p: Product) => {
     setEditing(p);
     setDraft({
@@ -98,12 +114,12 @@ export default function AdminProductsPage() {
       brandId: p.brandId,
       stock: String(p.stock),
       description: p.description,
-      image: p.images[0] ?? null,
+      images: [...p.images],
     });
     setDialogOpen(true);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!draft.name.trim() || !draft.price) {
       toast.error("نام و قیمت محصول الزامی است");
       return;
@@ -126,7 +142,6 @@ export default function AdminProductsPage() {
       sold: 0,
       stock: 0,
     };
-    const restImages = (editing?.images ?? []).filter((img, i) => i > 0 && img !== draft.image);
     const next: Product = {
       ...base,
       name: draft.name.trim(),
@@ -136,21 +151,45 @@ export default function AdminProductsPage() {
       brandId: draft.brandId,
       stock: Number(draft.stock || 0),
       description: draft.description.trim(),
-      images: draft.image ? [draft.image, ...restImages] : restImages,
+      images: draft.images,
     };
-    setRows((prev) => {
-      const list = prev ?? seed;
-      return editing ? list.map((p) => (p.id === editing.id ? next : p)) : [next, ...list];
-    });
-    setDialogOpen(false);
-    toast.success(editing ? "محصول ویرایش شد" : "محصول جدید اضافه شد");
+    try {
+      await putProduct(next);
+      setRows((prev) => {
+        const list = prev ?? seed;
+        return editing ? list.map((p) => (p.id === editing.id ? next : p)) : [next, ...list];
+      });
+      setDialogOpen(false);
+      invalidate();
+      toast.success(editing ? "محصول ویرایش شد" : "محصول جدید اضافه شد");
+    } catch {
+      toast.error("خطا در ذخیره محصول");
+    }
   };
 
-  const remove = () => {
+  const remove = async () => {
     if (!deleting) return;
-    setRows((prev) => (prev ?? seed).filter((p) => p.id !== deleting.id));
-    toast.success("محصول حذف شد");
+    try {
+      const res = await fetch(`/api/admin/products?id=${encodeURIComponent(deleting.id)}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("DELETE failed");
+      setRows((prev) => (prev ?? seed).filter((p) => p.id !== deleting.id));
+      invalidate();
+      toast.success("محصول حذف شد");
+    } catch {
+      toast.error("خطا در حذف محصول");
+    }
     setDeleting(null);
+  };
+
+  const toggleStock = async (p: Product, v: boolean) => {
+    const next = { ...p, stock: v ? Math.max(p.stock, 10) : 0 };
+    setRows((prev) => (prev ?? seed).map((x) => (x.id === p.id ? next : x)));
+    try {
+      await putProduct(next);
+      invalidate();
+    } catch {
+      toast.error("خطا در بروزرسانی موجودی");
+    }
   };
 
   return (
@@ -212,9 +251,7 @@ export default function AdminProductsPage() {
                   <span className="flex items-center gap-2">
                     <Switch
                       checked={p.stock > 0}
-                      onCheckedChange={(v) =>
-                        setRows((prev) => (prev ?? seed).map((x) => (x.id === p.id ? { ...x, stock: v ? Math.max(x.stock, 10) : 0 } : x)))
-                      }
+                      onCheckedChange={(v) => toggleStock(p, v)}
                     />
                     <Badge variant={p.stock > 0 ? "blush" : "secondary"}>{p.stock > 0 ? "فعال" : "ناموجود"}</Badge>
                   </span>
@@ -249,7 +286,46 @@ export default function AdminProductsPage() {
             <DialogDescription>اطلاعات اصلی محصول را وارد کنید.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
-            <ImageUpload label="تصویر محصول" value={draft.image} onChange={(url) => setDraft((d) => ({ ...d, image: url }))} />
+            <div className="grid gap-1.5">
+              <Label>تصاویر محصول</Label>
+              <div className="space-y-3">
+                {draft.images.map((img, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <ImageUpload
+                        label={`تصویر ${i + 1}`}
+                        value={img}
+                        onChange={(url) =>
+                          setDraft((d) => ({
+                            ...d,
+                            images: d.images.map((x, j) => (j === i ? (url ?? "") : x)).filter((x) => x),
+                          }))
+                        }
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="حذف تصویر"
+                      className="mt-7 text-muted-foreground hover:text-destructive"
+                      onClick={() => setDraft((d) => ({ ...d, images: d.images.filter((_, j) => j !== i) }))}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDraft((d) => ({ ...d, images: [...d.images, ""] }))}
+                >
+                  <Plus />
+                  افزودن تصویر
+                </Button>
+              </div>
+            </div>
             <div className="grid gap-1.5">
               <Label>نام محصول</Label>
               <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} />

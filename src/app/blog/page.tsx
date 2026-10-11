@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft, Newspaper } from "lucide-react";
-import { getBlogPosts } from "@/lib/store-data";
+import { getBlogPosts } from "@/lib/store-queries";
 import { formatFaDate, toFa } from "@/lib/format";
 import { SafeImage } from "@/components/SafeImage";
 

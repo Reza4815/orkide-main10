@@ -9,7 +9,9 @@ import { cn } from "@/lib/utils";
  * no 404 requests are ever fired for missing/default images.
  */
 export function isUploadSrc(src?: string | null): src is string {
-  return typeof src === "string" && src.startsWith("/uploads/") && src.length > "/uploads/".length;
+  if (typeof src !== "string" || src.length === 0) return false;
+  if (src.startsWith("/uploads/")) return src.length > "/uploads/".length;
+  return /^https?:\/\//.test(src);
 }
 
 export function SafeImage({

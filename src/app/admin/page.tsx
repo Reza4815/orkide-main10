@@ -16,7 +16,8 @@ import {
 } from "recharts";
 import { CheckCircle2, Eye, ImagePlus, Package, ShoppingCart, TrendingUp, UploadCloud, Users } from "lucide-react";
 import { toast } from "sonner";
-import { allProductsQuery, ordersQuery, orderStatusLabel, type OrderStatus } from "@/lib/store-data";
+import { allProductsQuery, ordersQuery } from "@/lib/queries.client";
+import { orderStatusLabel, type OrderStatus } from "@/lib/store-data";
 import { formatToman, toFa } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

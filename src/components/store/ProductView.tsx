@@ -22,8 +22,10 @@ import { toast } from "sonner";
 import {
   allProductsQuery,
   brandsQuery,
-  brandById,
   categoriesQuery,
+} from "@/lib/queries.client";
+import {
+  brandById,
   categoryById,
   type Product,
 } from "@/lib/store-data";

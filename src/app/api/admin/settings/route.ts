@@ -27,3 +27,8 @@ export async function PUT(req: NextRequest) {
   }
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE() {
+  await db.delete(storeSettings).where(eq(storeSettings.id, 1));
+  return NextResponse.json({ ok: true });
+}

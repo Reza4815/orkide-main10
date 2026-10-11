@@ -6,8 +6,8 @@ import {
   getFeatures,
   getHomeSections,
   getProducts,
-  selectProducts,
-} from "@/lib/store-data";
+} from "@/lib/store-queries";
+import { selectProducts } from "@/lib/store-data";
 import {
   BlogSection,
   BrandsSection,
@@ -18,6 +18,8 @@ import {
   ProductSection,
   PromoCards,
 } from "@/components/store/HomeSections";
+
+export const revalidate = 60;
 
 export default async function HomePage() {
   const [banners, categories, homeSections, features, brands, blogPosts, products] = await Promise.all([

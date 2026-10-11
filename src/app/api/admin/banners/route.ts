@@ -4,7 +4,7 @@ import { banners } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
-  const rows = await db.select().from(banners);
+  const rows = await db.select().from(banners).orderBy(banners.sort);
   return NextResponse.json(rows);
 }
 
@@ -20,5 +20,12 @@ export async function PUT(req: NextRequest) {
   } else {
     await db.insert(banners).values({ id, ...rest });
   }
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const id = new URL(req.url).searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+  await db.delete(banners).where(eq(banners.id, id));
   return NextResponse.json({ ok: true });
 }
