@@ -1,5 +1,15 @@
 import { queryOptions } from "@tanstack/react-query";
-import { createClient as createAnonClient } from "@supabase/supabase-js";
+import { sql } from "drizzle-orm";
+import { db } from "@/db";
+import {
+  banners as bannersTable,
+  blogPosts as blogPostsTable,
+  brands as brandsTable,
+  categories as categoriesTable,
+  features as featuresTable,
+  products as productsTable,
+  storeSettings as storeSettingsTable,
+} from "@/db/schema";
 import {
   banners as seedBanners,
   blogPosts as seedBlogPosts,
@@ -37,7 +47,13 @@ export type Product = {
   stock: number;
 };
 
-export type Category = { id: string; slug: string; name: string; image: string | null; description: string };
+export type Category = {
+  id: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  description: string;
+};
 export type Brand = { id: string; name: string; latinName: string };
 
 export type Banner = {
@@ -50,7 +66,12 @@ export type Banner = {
   badge: string;
 };
 
-export type Feature = { id: string; icon: string; title: string; description: string };
+export type Feature = {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+};
 
 export type HomeSection = {
   id: string;
@@ -92,7 +113,12 @@ export type MenuItem = { label: string; href: string };
 export type Coupon = { code: string; percent: number };
 
 export type OrderItem = { name: string; qty: number; price: number };
-export type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "canceled";
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "shipped"
+  | "delivered"
+  | "canceled";
 export type Order = {
   id: string;
   code: string;
@@ -104,30 +130,57 @@ export type Order = {
   items: OrderItem[];
 };
 
-/* ---------- fetch helpers: Supabase first, local catalog fallback ---------- */
+/* ---------- fetch helpers: Postgres first, seed fallback ---------- */
 
-const configured = () =>
-  Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-function catalogClient() {
-  return createAnonClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
-
-async function fromTable<T>(table: string, fallback: T[]): Promise<T[]> {
-  if (!configured()) return fallback;
+async function safeSelect<T>(
+  fn: () => Promise<T[]>,
+  fallback: T[],
+): Promise<T[]> {
   try {
-    const { data, error } = await catalogClient().from(table).select("*");
-    if (error || !data || data.length === 0) return fallback;
-    return data as unknown as T[];
-  } catch {
+    const rows = await fn();
+    if (!rows || rows.length === 0) return fallback;
+    return rows;
+  } catch (err) {
+    // DB در دسترس نیست یا جدول ساخته نشده — بی‌صدا به seed برگرد
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[store-data] falling back to seed:",
+        (err as Error).message,
+      );
+    }
     return fallback;
   }
 }
 
-export const getProducts = (): Promise<Product[]> => fromTable("products", seedProducts);
+/* ------------------------------- Products ------------------------------- */
+
+export async function getProducts(): Promise<Product[]> {
+  const rows = await safeSelect(
+    () => db.select().from(productsTable),
+    seedProducts as unknown as Product[],
+  );
+
+  return rows.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    brandId: p.brandId,
+    categoryId: p.categoryId,
+    price: p.price,
+    compareAt: p.compareAt ?? null,
+    colors: (p.colors as ProductColor[]) ?? [],
+    sizes: p.sizes ?? [],
+    images: p.images ?? [],
+    description: p.description,
+    specs: (p.specs as ProductSpec[]) ?? [],
+    isNew: p.isNew,
+    rating: p.rating,
+    numReviews: p.numReviews,
+    sold: p.sold,
+    stock: p.stock,
+  }));
+}
+
 export const getAllProducts = getProducts;
 
 export async function getProduct(slug: string): Promise<Product | null> {
@@ -135,45 +188,127 @@ export async function getProduct(slug: string): Promise<Product | null> {
   return all.find((p) => p.slug === slug) ?? null;
 }
 
-export const getCategories = (): Promise<Category[]> => fromTable("categories", seedCategories);
-export const getBrands = (): Promise<Brand[]> => fromTable("brands", seedBrands);
-export const getBanners = (): Promise<Banner[]> => fromTable("banners", seedBanners);
-export const getFeatures = (): Promise<Feature[]> => fromTable("features", seedFeatures);
-export const getHomeSections = (): Promise<HomeSection[]> => fromTable("homepage_sections", seedHomeSections);
-export const getBlogPosts = (): Promise<BlogPost[]> => fromTable("blog_posts", seedBlogPosts);
+/* ----------------------------- Categories ------------------------------- */
+
+export const getCategories = (): Promise<Category[]> =>
+  safeSelect(() => db.select().from(categoriesTable), seedCategories);
+
+/* ------------------------------- Brands --------------------------------- */
+
+export const getBrands = (): Promise<Brand[]> =>
+  safeSelect(() => db.select().from(brandsTable), seedBrands);
+
+/* ------------------------------ Banners --------------------------------- */
+
+export const getBanners = (): Promise<Banner[]> =>
+  safeSelect(async () => {
+    const rows = await db
+      .select()
+      .from(bannersTable)
+      .orderBy(bannersTable.sort);
+    return rows
+      .filter((b) => b.active !== false)
+      .map((b) => ({
+        id: b.id,
+        title: b.title,
+        subtitle: b.subtitle,
+        image: b.image ?? null,
+        ctaLabel: b.ctaLabel,
+        ctaHref: b.ctaHref,
+        badge: b.badge,
+      }));
+  }, seedBanners);
+
+/* ------------------------------ Features -------------------------------- */
+
+export const getFeatures = (): Promise<Feature[]> =>
+  safeSelect(() => db.select().from(featuresTable), seedFeatures);
+
+/* ---------------------------- Home sections ----------------------------- */
+
+export const getHomeSections = (): Promise<HomeSection[]> =>
+  safeSelect(async () => {
+    const rows = await db.execute<{
+      id: string;
+      type: string;
+      title: string | null;
+      subtitle: string | null;
+      config: unknown;
+      active: boolean;
+    }>(sql`select * from homepage_sections order by id`);
+    return (rows.rows ?? rows) as unknown as HomeSection[];
+  }, seedHomeSections);
+
+/* ------------------------------ Blog posts ------------------------------ */
+
+export const getBlogPosts = (): Promise<BlogPost[]> =>
+  safeSelect(() => db.select().from(blogPostsTable), seedBlogPosts);
 
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   const all = await getBlogPosts();
   return all.find((p) => p.slug === slug) ?? null;
 }
 
+/* -------------------------------- Settings ------------------------------ */
+
 export async function getSettings(): Promise<StoreSettings> {
-  if (!configured()) return seedSettings;
   try {
-    const { data, error } = await catalogClient().from("store_settings").select("*").limit(1).maybeSingle();
-    if (error || !data) return seedSettings;
-    return data as unknown as StoreSettings;
-  } catch {
+    const [row] = await db
+      .select()
+      .from(storeSettingsTable)
+      .where(sql`id = 1`)
+      .limit(1);
+
+    if (!row) return seedSettings;
+
+    return {
+      storeName: row.storeName,
+      tagline: row.tagline,
+      phone: row.phone,
+      email: row.email,
+      address: row.address,
+      hours: row.hours,
+      footerText: row.footerText,
+      freeShippingThreshold: row.freeShippingThreshold,
+      shippingCost: row.shippingCost,
+      instagram: row.instagram,
+      telegram: row.telegram,
+    };
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[store-data] settings fallback:", (err as Error).message);
+    }
     return seedSettings;
   }
 }
 
-export const getMenu = (): Promise<MenuItem[]> => fromTable("menu_items", seedMenuItems);
-export const getOrders = (): Promise<Order[]> => fromTable("orders", seedOrders);
-export const getCoupons = (): Promise<Coupon[]> => fromTable("coupons", seedCoupons);
+/* --------------------------- Fallback-only data ------------------------- */
+/* این‌ها هنوز جدول Drizzle ندارن — از seed می‌خونن تا بعداً جدولشون ساخته بشه */
+
+export const getMenu = async (): Promise<MenuItem[]> => seedMenuItems;
+export const getOrders = async (): Promise<Order[]> => seedOrders;
+export const getCoupons = async (): Promise<Coupon[]> => seedCoupons;
 
 export async function validateCoupon(code: string): Promise<Coupon | null> {
   const all = await getCoupons();
-  return all.find((c) => c.code.toLowerCase() === code.trim().toLowerCase()) ?? null;
+  return (
+    all.find((c) => c.code.toLowerCase() === code.trim().toLowerCase()) ?? null
+  );
 }
 
-/* ---------- selection helpers ---------- */
+/* -------------------------- selection helpers --------------------------- */
 
-export function selectProducts(products: Product[], source?: string, limit = 8): Product[] {
+export function selectProducts(
+  products: Product[],
+  source?: string,
+  limit = 8,
+): Product[] {
   let list = [...products];
   switch (source) {
     case "new":
-      list = list.filter((p) => p.isNew).sort((a, b) => b.id.localeCompare(a.id));
+      list = list
+        .filter((p) => p.isNew)
+        .sort((a, b) => b.id.localeCompare(a.id));
       break;
     case "bestseller":
       list = list.sort((a, b) => b.sold - a.sold);
@@ -181,7 +316,11 @@ export function selectProducts(products: Product[], source?: string, limit = 8):
     case "discounted":
       list = list
         .filter((p) => p.compareAt && p.compareAt > p.price)
-        .sort((a, b) => (b.compareAt! - b.price) / b.compareAt! - (a.compareAt! - a.price) / a.compareAt!);
+        .sort(
+          (a, b) =>
+            (b.compareAt! - b.price) / b.compareAt! -
+            (a.compareAt! - a.price) / a.compareAt!,
+        );
       break;
     default:
       break;
@@ -189,25 +328,64 @@ export function selectProducts(products: Product[], source?: string, limit = 8):
   return list.slice(0, limit);
 }
 
-/* ---------- react-query options ---------- */
+/* -------------------------- react-query options ------------------------- */
 
-export const productsQuery = queryOptions({ queryKey: ["products"], queryFn: () => getProducts() });
-export const allProductsQuery = queryOptions({ queryKey: ["all-products"], queryFn: () => getAllProducts() });
+export const productsQuery = queryOptions({
+  queryKey: ["products"],
+  queryFn: () => getProducts(),
+});
+export const allProductsQuery = queryOptions({
+  queryKey: ["all-products"],
+  queryFn: () => getAllProducts(),
+});
 export const productQuery = (slug: string) =>
-  queryOptions({ queryKey: ["product", slug], queryFn: () => getProduct(slug) });
-export const categoriesQuery = queryOptions({ queryKey: ["categories"], queryFn: () => getCategories() });
-export const brandsQuery = queryOptions({ queryKey: ["brands"], queryFn: () => getBrands() });
-export const bannersQuery = queryOptions({ queryKey: ["banners"], queryFn: () => getBanners() });
-export const featuresQuery = queryOptions({ queryKey: ["features"], queryFn: () => getFeatures() });
-export const homeSectionsQuery = queryOptions({ queryKey: ["home-sections"], queryFn: () => getHomeSections() });
-export const blogPostsQuery = queryOptions({ queryKey: ["blog-posts"], queryFn: () => getBlogPosts() });
+  queryOptions({
+    queryKey: ["product", slug],
+    queryFn: () => getProduct(slug),
+  });
+export const categoriesQuery = queryOptions({
+  queryKey: ["categories"],
+  queryFn: () => getCategories(),
+});
+export const brandsQuery = queryOptions({
+  queryKey: ["brands"],
+  queryFn: () => getBrands(),
+});
+export const bannersQuery = queryOptions({
+  queryKey: ["banners"],
+  queryFn: () => getBanners(),
+});
+export const featuresQuery = queryOptions({
+  queryKey: ["features"],
+  queryFn: () => getFeatures(),
+});
+export const homeSectionsQuery = queryOptions({
+  queryKey: ["home-sections"],
+  queryFn: () => getHomeSections(),
+});
+export const blogPostsQuery = queryOptions({
+  queryKey: ["blog-posts"],
+  queryFn: () => getBlogPosts(),
+});
 export const blogPostQuery = (slug: string) =>
-  queryOptions({ queryKey: ["blog-post", slug], queryFn: () => getBlogPost(slug) });
-export const settingsQuery = queryOptions({ queryKey: ["settings"], queryFn: () => getSettings() });
-export const menuQuery = queryOptions({ queryKey: ["menu"], queryFn: () => getMenu() });
-export const ordersQuery = queryOptions({ queryKey: ["orders"], queryFn: () => getOrders() });
+  queryOptions({
+    queryKey: ["blog-post", slug],
+    queryFn: () => getBlogPost(slug),
+  });
+export const settingsQuery = queryOptions({
+  queryKey: ["settings"],
+  queryFn: () => getSettings(),
+});
+export const menuQuery = queryOptions({
+  queryKey: ["menu"],
+  queryFn: () => getMenu(),
+});
+export const ordersQuery = queryOptions({
+  queryKey: ["orders"],
+  queryFn: () => getOrders(),
+});
 
-/* ---------- derived lookups ---------- */
+/* --------------------------- derived lookups ---------------------------- */
 
 export const orderStatusLabel: Record<OrderStatus, string> = {
   pending: "در انتظار پرداخت",
@@ -217,11 +395,16 @@ export const orderStatusLabel: Record<OrderStatus, string> = {
   canceled: "لغو شده",
 };
 
-export const brandById = (brands: Brand[], id: string) => brands.find((b) => b.id === id);
-export const categoryById = (categories: Category[], id: string) => categories.find((c) => c.id === id);
-export const categoryBySlug = (categories: Category[], slug: string) => categories.find((c) => c.slug === slug);
+export const brandById = (brands: Brand[], id: string) =>
+  brands.find((b) => b.id === id);
+export const categoryById = (categories: Category[], id: string) =>
+  categories.find((c) => c.id === id);
+export const categoryBySlug = (categories: Category[], slug: string) =>
+  categories.find((c) => c.slug === slug);
 
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export async function getCategoryBySlug(
+  slug: string,
+): Promise<Category | null> {
   const all = await getCategories();
   return all.find((c) => c.slug === slug) ?? null;
 }

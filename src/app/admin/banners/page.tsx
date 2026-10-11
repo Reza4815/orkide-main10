@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { bannersQuery, type Banner } from "@/lib/store-data";
+import type { Banner } from "@/lib/store-data";
 import { toFa } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -16,12 +22,19 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { SafeImage } from "@/components/SafeImage";
 
 export default function AdminBannersPage() {
-  const { data: seed = [] } = useQuery(bannersQuery);
-  const [rows, setRows] = useState<Banner[] | null>(null);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
-  const banners = rows ?? seed;
   const [editing, setEditing] = useState<Banner | null>(null);
-  const [draft, setDraft] = useState<{ title: string; subtitle: string; ctaLabel: string; ctaHref: string; badge: string; image: string | null }>({
+  const [saving, setSaving] = useState(false);
+  const [draft, setDraft] = useState<{
+    title: string;
+    subtitle: string;
+    ctaLabel: string;
+    ctaHref: string;
+    badge: string;
+    image: string | null;
+  }>({
     title: "",
     subtitle: "",
     ctaLabel: "",
@@ -30,40 +43,101 @@ export default function AdminBannersPage() {
     image: null,
   });
 
+  // بارگذاری بنرها از DB
+  useEffect(() => {
+    fetch("/api/admin/banners")
+      .then((r) => r.json())
+      .then((data) => {
+        setBanners(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("خطا در بارگذاری بنرها");
+        setLoading(false);
+      });
+  }, []);
+
   const isOn = (b: Banner) => enabled[b.id] ?? true;
 
   const openEdit = (b: Banner) => {
     setEditing(b);
-    setDraft({ title: b.title, subtitle: b.subtitle, ctaLabel: b.ctaLabel, ctaHref: b.ctaHref, badge: b.badge, image: b.image });
+    setDraft({
+      title: b.title,
+      subtitle: b.subtitle,
+      ctaLabel: b.ctaLabel,
+      ctaHref: b.ctaHref,
+      badge: b.badge,
+      image: b.image,
+    });
   };
 
-  const save = () => {
+  const save = async () => {
     if (!editing) return;
-    setRows((prev) => (prev ?? seed).map((b) => (b.id === editing.id ? { ...b, ...draft } : b)));
-    setEditing(null);
-    toast.success("بنر به‌روزرسانی شد");
+    setSaving(true);
+    try {
+      const updated = { ...editing, ...draft };
+      const res = await fetch("/api/admin/banners", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+      if (!res.ok) throw new Error("save failed");
+
+      setBanners((prev) =>
+        prev.map((b) => (b.id === editing.id ? updated : b)),
+      );
+      setEditing(null);
+      toast.success("بنر ذخیره شد");
+    } catch {
+      toast.error("خطا در ذخیره بنر");
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 text-sm text-muted-foreground">
+        در حال بارگذاری...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-lg font-black text-ink">بنرهای صفحه اصلی</h1>
-        <p className="text-xs text-muted-foreground">{toFa(banners.length)} اسلاید در هیرو فروشگاه</p>
+        <p className="text-xs text-muted-foreground">
+          {toFa(banners.length)} اسلاید در هیرو فروشگاه
+        </p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         {banners.map((b, i) => (
-          <div key={b.id} className="overflow-hidden rounded-2xl border bg-card shadow-soft">
+          <div
+            key={b.id}
+            className="overflow-hidden rounded-2xl border bg-card shadow-soft"
+          >
             <div className="relative h-40 bg-blush">
-              <SafeImage src={b.image} alt={b.title} fill sizes="(max-width: 1024px) 100vw, 33vw" />
+              <SafeImage
+                src={b.image}
+                alt={b.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 33vw"
+              />
               <span className="absolute start-3 top-3 rounded-full bg-background/85 px-2.5 py-1 text-[10px] font-bold text-primary backdrop-blur">
                 اسلاید {toFa(i + 1)}
               </span>
             </div>
             <div className="space-y-3 p-4">
               <div>
-                <p className="line-clamp-1 text-sm font-bold text-ink">{b.title}</p>
-                <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">{b.subtitle}</p>
+                <p className="line-clamp-1 text-sm font-bold text-ink">
+                  {b.title}
+                </p>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
+                  {b.subtitle}
+                </p>
               </div>
               <div className="flex items-center justify-between border-t pt-3">
                 <label className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -90,38 +164,77 @@ export default function AdminBannersPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>ویرایش بنر</DialogTitle>
-            <DialogDescription>متن‌ها و مقصد دکمه بنر را تغییر دهید.</DialogDescription>
+            <DialogDescription>
+              متن‌ها و مقصد دکمه بنر را تغییر دهید.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
-            <ImageUpload label="تصویر بنر" value={draft.image} onChange={(url) => setDraft((d) => ({ ...d, image: url }))} />
+            <ImageUpload
+              label="تصویر بنر"
+              value={draft.image}
+              onChange={(url) => setDraft((d) => ({ ...d, image: url }))}
+            />
             <div className="grid gap-1.5">
               <Label>عنوان</Label>
-              <Input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} />
+              <Input
+                value={draft.title}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, title: e.target.value }))
+                }
+              />
             </div>
             <div className="grid gap-1.5">
               <Label>زیرعنوان</Label>
-              <Textarea rows={3} value={draft.subtitle} onChange={(e) => setDraft((d) => ({ ...d, subtitle: e.target.value }))} />
+              <Textarea
+                rows={3}
+                value={draft.subtitle}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, subtitle: e.target.value }))
+                }
+              />
             </div>
             <div className="grid gap-1.5">
               <Label>برچسب</Label>
-              <Input value={draft.badge} onChange={(e) => setDraft((d) => ({ ...d, badge: e.target.value }))} />
+              <Input
+                value={draft.badge}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, badge: e.target.value }))
+                }
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label>متن دکمه</Label>
-                <Input value={draft.ctaLabel} onChange={(e) => setDraft((d) => ({ ...d, ctaLabel: e.target.value }))} />
+                <Input
+                  value={draft.ctaLabel}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, ctaLabel: e.target.value }))
+                  }
+                />
               </div>
               <div className="grid gap-1.5">
                 <Label>لینک دکمه</Label>
-                <Input dir="ltr" value={draft.ctaHref} onChange={(e) => setDraft((d) => ({ ...d, ctaHref: e.target.value }))} />
+                <Input
+                  dir="ltr"
+                  value={draft.ctaHref}
+                  onChange={(e) =>
+                    setDraft((d) => ({ ...d, ctaHref: e.target.value }))
+                  }
+                />
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setEditing(null)}
+              disabled={saving}
+            >
               انصراف
             </Button>
-            <Button onClick={save}>ذخیره تغییرات</Button>
+            <Button onClick={save} disabled={saving}>
+              {saving ? "در حال ذخیره..." : "ذخیره تغییرات"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

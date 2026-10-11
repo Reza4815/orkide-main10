@@ -39,19 +39,32 @@ export default function AdminSettingsPage() {
     });
   }, [settings]);
 
-  const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((f) => ({ ...f, [key]: e.target.value }));
+  const set =
+    (key: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("تنظیمات فروشگاه ذخیره شد");
+    const res = await fetch("/api/admin/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...form,
+        freeShippingThreshold: Number(form.freeShippingThreshold) || 0,
+        shippingCost: Number(form.shippingCost) || 0,
+      }),
+    });
+    if (res.ok) toast.success("ذخیره شد");
+    else toast.error("خطا");
   };
-
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-lg font-black text-ink">تنظیمات فروشگاه</h1>
-        <p className="text-xs text-muted-foreground">اطلاعات پایه و قوانین ارسال</p>
+        <p className="text-xs text-muted-foreground">
+          اطلاعات پایه و قوانین ارسال
+        </p>
       </div>
 
       <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2">
@@ -70,7 +83,12 @@ export default function AdminSettingsPage() {
             </div>
             <div className="grid gap-1.5">
               <Label>ایمیل</Label>
-              <Input dir="ltr" type="email" value={form.email} onChange={set("email")} />
+              <Input
+                dir="ltr"
+                type="email"
+                value={form.email}
+                onChange={set("email")}
+              />
             </div>
             <div className="grid gap-1.5">
               <Label>ساعات کاری</Label>
@@ -78,7 +96,11 @@ export default function AdminSettingsPage() {
             </div>
             <div className="grid gap-1.5">
               <Label>آدرس فروشگاه</Label>
-              <Textarea rows={2} value={form.address} onChange={set("address")} />
+              <Textarea
+                rows={2}
+                value={form.address}
+                onChange={set("address")}
+              />
             </div>
           </CardContent>
         </Card>
@@ -91,11 +113,21 @@ export default function AdminSettingsPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-1.5">
                 <Label>حداقل خرید برای ارسال رایگان (تومان)</Label>
-                <Input dir="ltr" inputMode="numeric" value={form.freeShippingThreshold} onChange={set("freeShippingThreshold")} />
+                <Input
+                  dir="ltr"
+                  inputMode="numeric"
+                  value={form.freeShippingThreshold}
+                  onChange={set("freeShippingThreshold")}
+                />
               </div>
               <div className="grid gap-1.5">
                 <Label>هزینه ارسال عادی (تومان)</Label>
-                <Input dir="ltr" inputMode="numeric" value={form.shippingCost} onChange={set("shippingCost")} />
+                <Input
+                  dir="ltr"
+                  inputMode="numeric"
+                  value={form.shippingCost}
+                  onChange={set("shippingCost")}
+                />
               </div>
             </CardContent>
           </Card>
@@ -105,7 +137,11 @@ export default function AdminSettingsPage() {
               <CardTitle className="text-sm">متن فوتر</CardTitle>
             </CardHeader>
             <CardContent>
-              <Textarea rows={4} value={form.footerText} onChange={set("footerText")} />
+              <Textarea
+                rows={4}
+                value={form.footerText}
+                onChange={set("footerText")}
+              />
             </CardContent>
           </Card>
         </div>
