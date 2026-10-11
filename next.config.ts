@@ -1,13 +1,18 @@
-import type {NextConfig} from "next";
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: false, // برای رفع خطای HMR state update
+  reactStrictMode: false,
   images: {
     remotePatterns: [
-      {protocol: "https", hostname: "**.supabase.co"},
-      {protocol: "https", hostname: "*.public.blob.vercel-storage.com"},
+      { protocol: "https", hostname: "**.supabase.co" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
-    unoptimized: true, // برای رفع 400 تصاویر لوکال
+    unoptimized: true,
+  },
+  async rewrites() {
+    return [
+      { source: "/uploads/:file", destination: "/api/public/media/:file" },
+    ];
   },
 };
 
