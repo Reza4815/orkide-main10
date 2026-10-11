@@ -4,7 +4,20 @@ import * as schema from "./schema";
 
 const databaseUrl =
   process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL ??
+  process.env.POSTGRES_PRISMA_URL ??
   "postgresql://postgres:postgres@127.0.0.1:5432/app_db";
+
+if (process.env.NODE_ENV !== "production") {
+  const source = process.env.DATABASE_URL
+    ? "DATABASE_URL"
+    : process.env.POSTGRES_URL
+      ? "POSTGRES_URL"
+      : process.env.POSTGRES_PRISMA_URL
+        ? "POSTGRES_PRISMA_URL"
+        : "local fallback";
+  console.log(`[db] using connection source: ${source}`);
+}
 
 const globalForDb = globalThis as typeof globalThis & {
   __arenaNextJsPostgresqlPool?: Pool;
