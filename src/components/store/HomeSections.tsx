@@ -15,7 +15,14 @@ import {
   Truck,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { Banner, BlogPost, Brand, Category, Feature, Product } from "@/lib/store-data";
+import type {
+  Banner,
+  BlogPost,
+  Brand,
+  Category,
+  Feature,
+  Product,
+} from "@/lib/store-data";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { formatFaDate, toFa } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -52,161 +59,187 @@ export function Hero({ banners }: { banners: Banner[] }) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative">
-        {/* rose glow behind the frame */}
+      <div
+        className={cn(
+          "relative overflow-hidden bg-surface-dark ring-1 ring-black/5",
+          // ارتفاع responsive
+          "h-[360px]",
+          "sm:h-[420px]",
+          "md:h-[460px]",
+          "lg:h-[540px]",
+          "xl:h-[600px]",
+          // گردی گوشه متقارن
+          "rounded-3xl",
+          "md:rounded-[2rem]",
+          "lg:rounded-[2.5rem]",
+        )}
+      >
+        {/* slides */}
+        {banners.map((slide, i) => (
+          <div
+            key={slide.id}
+            aria-hidden={i !== active}
+            className={cn(
+              "absolute inset-0 transition-all duration-1000 ease-out",
+              i === active ? "scale-100 opacity-100" : "scale-105 opacity-0",
+            )}
+          >
+            <SafeImage
+              src={slide.image}
+              alt={slide.title}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className={cn("object-cover", i === active && "animate-kenburns")}
+            />
+          </div>
+        ))}
+
+        {/* readability overlay - فقط پایین، ملایم */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-3 -z-10 rounded-[3rem] bg-gradient-to-tr from-primary/25 via-primary-soft/25 to-transparent opacity-70 blur-2xl"
+          className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"
         />
 
-        <div className="relative h-[460px] overflow-hidden rounded-[1.75rem] bg-surface-dark shadow-[0_50px_100px_-50px_oklch(0.55_0.12_5/0.55)] ring-1 ring-white/15 rounded-bl-[4rem] rounded-tr-[4rem] sm:h-[500px] md:h-[560px] md:rounded-[2.75rem] md:rounded-bl-[6.5rem] md:rounded-tr-[6.5rem] lg:h-[600px]">
-          {/* slides with slow Ken Burns zoom on the active one */}
-          {banners.map((slide, i) => (
-            <div
-              key={slide.id}
-              aria-hidden={i !== active}
-              className={cn(
-                "absolute inset-0 transition-all duration-1000 ease-out",
-                i === active ? "scale-100 opacity-100" : "scale-105 opacity-0",
-              )}
-            >
-              <SafeImage
-                src={slide.image}
-                alt={slide.title}
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className={cn("object-cover", i === active && "animate-kenburns")}
-              />
-            </div>
-          ))}
+        {/* film grain */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+          style={{ backgroundImage: GRAIN_URL }}
+        />
 
-          {/* readability overlays: bottom wash + start-side vignette */}
+        {/* slide counter */}
+        {count > 1 && (
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/10"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-l from-black/50 via-transparent to-transparent"
-          />
-
-          {/* film grain */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-[0.07] mix-blend-overlay"
-            style={{ backgroundImage: GRAIN_URL }}
-          />
-
-          {/* slide counter */}
-          {count > 1 && (
-            <div
-              aria-hidden="true"
-              dir="ltr"
-              className="absolute top-6 end-7 z-20 flex items-center gap-1.5 text-[11px] font-medium tracking-[0.3em] text-white/70 md:top-8 md:end-10"
-            >
-              <span className="tabular-nums text-white">{toFa(active + 1)}</span>
-              <span className="text-white/40">/</span>
-              <span className="tabular-nums">{toFa(count)}</span>
-            </div>
-          )}
-
-          {/* editorial content block, RTL start-aligned */}
-          <div
-            key={b.id}
-            className="absolute inset-0 z-10 flex flex-col items-start justify-end gap-3.5 p-7 pb-24 text-start md:justify-center md:gap-5 md:p-14"
+            dir="ltr"
+            className="absolute top-4 end-4 z-20 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] font-medium tracking-[0.2em] text-white/80 backdrop-blur-md md:top-6 md:end-6 md:text-[11px]"
           >
-            {b.badge && (
-              <span
-                className="animate-fade-up inline-flex w-fit items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-[11px] font-semibold text-white backdrop-blur-md"
-              >
-                <Sparkles className="size-3 text-primary-soft" />
-                {b.badge}
-              </span>
-            )}
-            <h1
-              className="animate-fade-up max-w-xl text-[1.7rem] font-black leading-snug text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.45)] md:text-[2.75rem] md:leading-[1.3]"
-              style={{ animationDelay: "80ms" }}
-            >
-              {b.title}
-            </h1>
-            <span
-              aria-hidden="true"
-              className="animate-fade-up h-[3px] w-14 rounded-full bg-gradient-to-l from-primary via-primary-soft to-transparent"
-              style={{ animationDelay: "140ms" }}
-            />
-            <p
-              className="animate-fade-up line-clamp-2 max-w-lg text-xs leading-relaxed text-white/80 md:text-sm"
-              style={{ animationDelay: "180ms" }}
-            >
-              {b.subtitle}
-            </p>
-            <div className="animate-fade-up pt-1.5" style={{ animationDelay: "260ms" }}>
-              <Button
-                asChild
-                size="lg"
-                className="h-12 rounded-full bg-background px-8 text-ink shadow-lg hover:bg-white hover:text-ink"
-              >
-                <Link href={b.ctaHref}>
-                  {b.ctaLabel}
-                  <ChevronLeft className="size-4" />
-                </Link>
-              </Button>
-            </div>
+            <span className="tabular-nums text-white">{toFa(active + 1)}</span>
+            <span className="text-white/40">/</span>
+            <span className="tabular-nums">{toFa(count)}</span>
           </div>
+        )}
 
-          {/* animated progress segments */}
-          {count > 1 && (
-            <div
-              dir="ltr"
-              className="absolute bottom-7 start-7 z-20 flex items-center gap-2 md:start-14"
+        {/* content block */}
+        <div
+          key={b.id}
+          className={cn(
+            "absolute inset-0 z-10 flex flex-col items-start text-start",
+            "justify-end gap-3 p-6 pb-14",
+            "sm:gap-3.5 sm:p-8 sm:pb-16",
+            "md:justify-center md:gap-4 md:p-10 md:pb-10",
+            "lg:gap-5 lg:p-14",
+          )}
+        >
+          {b.badge && (
+            <span className="animate-fade-up inline-flex w-fit items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold text-white backdrop-blur-md md:px-3.5 md:text-[11px]">
+              <Sparkles className="size-3 text-primary-soft" />
+              {b.badge}
+            </span>
+          )}
+
+          <h1
+            className={cn(
+              "animate-fade-up max-w-xl font-black leading-[1.4] text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.6)]",
+              "text-[1.35rem]",
+              "sm:text-2xl",
+              "md:text-3xl md:leading-[1.3]",
+              "lg:text-4xl",
+              "xl:text-[2.5rem]",
+            )}
+            style={{ animationDelay: "80ms" }}
+          >
+            {b.title}
+          </h1>
+
+          <span
+            aria-hidden="true"
+            className="animate-fade-up h-[3px] w-12 rounded-full bg-gradient-to-l from-primary via-primary-soft to-transparent md:w-16"
+            style={{ animationDelay: "140ms" }}
+          />
+
+          <p
+            className={cn(
+              "animate-fade-up max-w-lg leading-relaxed text-white/85",
+              "line-clamp-2 text-xs",
+              "sm:text-[13px]",
+              "md:line-clamp-3 md:text-sm",
+            )}
+            style={{ animationDelay: "180ms" }}
+          >
+            {b.subtitle}
+          </p>
+
+          <div
+            className="animate-fade-up pt-1.5 md:pt-2"
+            style={{ animationDelay: "260ms" }}
+          >
+            <Button
+              asChild
+              size="lg"
+              className="h-11 rounded-full bg-background px-6 text-xs font-bold text-ink shadow-lg transition-all hover:-translate-y-0.5 hover:bg-white hover:text-ink hover:shadow-xl md:h-12 md:px-8 md:text-sm"
             >
-              {banners.map((slide, i) => (
-                <button
-                  key={slide.id}
-                  type="button"
-                  aria-label={`اسلاید ${toFa(i + 1)}`}
-                  onClick={() => setActive(i)}
-                  className="h-[3px] w-10 overflow-hidden rounded-full bg-white/25 transition-colors hover:bg-white/45 md:w-14"
-                >
-                  {i === active && (
-                    <span
-                      className="block h-full w-full origin-left rounded-full bg-white animate-hero-progress"
-                      style={{ animationPlayState: paused ? "paused" : "running" }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* glass navigation arrows */}
-          {count > 1 && (
-            <>
-              <button
-                type="button"
-                aria-label="اسلاید قبلی"
-                onClick={() => go(-1)}
-                className="absolute top-1/2 end-4 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/25 md:grid"
-              >
-                <ChevronRight className="size-5" />
-              </button>
-              <button
-                type="button"
-                aria-label="اسلاید بعدی"
-                onClick={() => go(1)}
-                className="absolute top-1/2 start-4 z-20 hidden size-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/25 md:grid"
-              >
-                <ChevronLeft className="size-5" />
-              </button>
-            </>
-          )}
+              <Link href={b.ctaHref}>
+                {b.ctaLabel}
+                <ChevronLeft className="size-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
+
+        {/* progress segments */}
+        {count > 1 && (
+          <div
+            dir="ltr"
+            className="absolute bottom-4 start-5 z-20 flex items-center gap-1.5 md:bottom-7 md:start-7 md:gap-2"
+          >
+            {banners.map((slide, i) => (
+              <button
+                key={slide.id}
+                type="button"
+                aria-label={`اسلاید ${toFa(i + 1)}`}
+                onClick={() => setActive(i)}
+                className="h-[3px] w-8 overflow-hidden rounded-full bg-white/25 transition-all hover:bg-white/50 md:w-12"
+              >
+                {i === active && (
+                  <span
+                    className="block h-full w-full origin-left rounded-full bg-white animate-hero-progress"
+                    style={{
+                      animationPlayState: paused ? "paused" : "running",
+                    }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* navigation arrows - فقط دسکتاپ */}
+        {count > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="اسلاید قبلی"
+              onClick={() => go(-1)}
+              className="absolute top-1/2 end-3 z-20 hidden size-10 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/25 md:grid md:size-11 lg:end-5"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="اسلاید بعدی"
+              onClick={() => go(1)}
+              className="absolute top-1/2 start-3 z-20 hidden size-10 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white/25 md:grid md:size-11 lg:start-5"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+          </>
+        )}
       </div>
     </section>
   );
 }
-
 /* ------------------------------ Category strip ----------------------------- */
 
 export function CategoryStrip({ categories }: { categories: Category[] }) {
@@ -225,7 +258,13 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
             className="group flex shrink-0 flex-col items-center gap-2.5"
           >
             <span className="relative block size-20 overflow-hidden rounded-full border border-border/60 bg-blush shadow-soft transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-primary group-hover:shadow-[0_10px_30px_-10px_rgba(232,168,184,0.9)] md:size-24">
-              <SafeImage src={c.image} alt={c.name} fill sizes="96px" className="transition-transform duration-700 group-hover:scale-110" />
+              <SafeImage
+                src={c.image}
+                alt={c.name}
+                fill
+                sizes="96px"
+                className="transition-transform duration-700 group-hover:scale-110"
+              />
             </span>
             <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary md:text-sm">
               {c.name}
@@ -275,7 +314,11 @@ export function ProductSection({
       <div className="mb-4 flex items-end justify-between gap-3 md:mb-6">
         <div className="flex flex-col gap-0.5">
           <h2 className="section-title">{title}</h2>
-          {subtitle && <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground md:text-sm">{subtitle}</p>}
+          {subtitle && (
+            <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground md:text-sm">
+              {subtitle}
+            </p>
+          )}
         </div>
         <Link
           href={href}
@@ -321,7 +364,9 @@ export function PromoCards({ categories }: { categories: Category[] }) {
           >
             <span className="flex flex-col gap-1">
               <span className="text-[10px] text-muted-foreground">انواع</span>
-              <span className="text-sm font-bold text-ink md:text-base">{c.name}</span>
+              <span className="text-sm font-bold text-ink md:text-base">
+                {c.name}
+              </span>
               <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-background px-2.5 py-1 text-[10px] font-semibold text-primary">
                 مشاهده
                 <ChevronLeft className="size-3" />
@@ -345,7 +390,10 @@ export function PromoCards({ categories }: { categories: Category[] }) {
 
 /* --------------------------------- Features -------------------------------- */
 
-const featureIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+const featureIcons: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   truck: Truck,
   shield: ShieldCheck,
   badge: BadgeCheck,
@@ -370,7 +418,9 @@ export function FeaturesSection({ features }: { features: Feature[] }) {
                 <Icon className="size-5" />
               </span>
               <p className="text-xs font-bold text-ink md:text-sm">{f.title}</p>
-              <p className="text-[10px] leading-relaxed text-muted-foreground">{f.description}</p>
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                {f.description}
+              </p>
             </div>
           );
         })}
@@ -397,10 +447,15 @@ export function BrandsSection({ brands }: { brands: Brand[] }) {
             className="group grid h-20 w-32 shrink-0 place-items-center rounded-2xl border border-border/60 bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_rgba(232,168,184,0.5)] md:h-24 md:w-auto"
           >
             <span className="flex flex-col items-center gap-0.5">
-              <span className="text-sm font-black tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-primary md:text-base" dir="ltr">
+              <span
+                className="text-sm font-black tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-primary md:text-base"
+                dir="ltr"
+              >
                 {b.latinName}
               </span>
-              <span className="text-[10px] text-muted-foreground">{b.name}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {b.name}
+              </span>
             </span>
           </Link>
         ))}
@@ -452,7 +507,9 @@ export function BlogSection({ posts }: { posts: BlogPost[] }) {
               <h3 className="line-clamp-2 text-sm font-bold leading-6 text-ink transition-colors group-hover:text-primary">
                 {post.title}
               </h3>
-              <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{post.excerpt}</p>
+              <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                {post.excerpt}
+              </p>
               <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
                 ادامه مطلب
                 <ChevronLeft className="size-3" />
@@ -481,12 +538,16 @@ export function NewsletterSection() {
     try {
       if (isSupabaseConfigured()) {
         const supabase = createClient();
-        const { error } = await supabase.from("newsletter_subscribers").insert({ email: email.trim() });
+        const { error } = await supabase
+          .from("newsletter_subscribers")
+          .insert({ email: email.trim() });
         if (error && error.code !== "23505") throw error;
       } else {
         await new Promise((r) => setTimeout(r, 500));
       }
-      toast.success("عضویت شما با موفقیت ثبت شد", { description: "از تخفیف‌ها و جدیدترین‌ها زودتر باخبر می‌شوید." });
+      toast.success("عضویت شما با موفقیت ثبت شد", {
+        description: "از تخفیف‌ها و جدیدترین‌ها زودتر باخبر می‌شوید.",
+      });
       setEmail("");
     } catch {
       toast.error("ثبت عضویت با خطا مواجه شد؛ دوباره تلاش کنید");
@@ -512,11 +573,17 @@ export function NewsletterSection() {
           <span className="grid size-12 place-items-center rounded-full bg-background text-primary shadow-soft">
             <Mail className="size-5" />
           </span>
-          <h2 className="text-2xl font-extrabold tracking-tight text-ink md:text-3xl">عضویت در خبرنامه ارکیده</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight text-ink md:text-3xl">
+            عضویت در خبرنامه ارکیده
+          </h2>
           <p className="max-w-md text-xs leading-relaxed text-muted-foreground md:text-sm">
-            از جدیدترین محصولات، کالکشن‌های فصلی و تخفیف‌های ویژه زودتر از همه باخبر شوید.
+            از جدیدترین محصولات، کالکشن‌های فصلی و تخفیف‌های ویژه زودتر از همه
+            باخبر شوید.
           </p>
-          <form onSubmit={submit} className="flex w-full max-w-md flex-col gap-2 sm:flex-row">
+          <form
+            onSubmit={submit}
+            className="flex w-full max-w-md flex-col gap-2 sm:flex-row"
+          >
             <Input
               type="email"
               dir="ltr"
