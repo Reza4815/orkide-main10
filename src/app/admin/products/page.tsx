@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
@@ -8,6 +7,8 @@ import { toast } from "sonner";
 import { allProductsQuery, categoriesQuery, brandsQuery, type Product } from "@/lib/store-data";
 import { formatToman, toFa } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/SafeImage";
+import { ImageUpload } from "@/components/ImageUpload";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,9 +50,19 @@ type Draft = {
   brandId: string;
   stock: string;
   description: string;
+  image: string | null;
 };
 
-const emptyDraft: Draft = { name: "", price: "", compareAt: "", categoryId: "", brandId: "", stock: "", description: "" };
+const emptyDraft: Draft = {
+  name: "",
+  price: "",
+  compareAt: "",
+  categoryId: "",
+  brandId: "",
+  stock: "",
+  description: "",
+  image: null,
+};
 
 export default function AdminProductsPage() {
   const { data: seed = [] } = useQuery(allProductsQuery);
@@ -87,6 +98,7 @@ export default function AdminProductsPage() {
       brandId: p.brandId,
       stock: String(p.stock),
       description: p.description,
+      image: p.images[0] ?? null,
     });
     setDialogOpen(true);
   };
@@ -106,7 +118,7 @@ export default function AdminProductsPage() {
       compareAt: null,
       colors: [],
       sizes: ["Free"],
-      images: ["/assets/p-set.jpg"],
+      images: [],
       description: "",
       specs: [],
       rating: 5,
@@ -114,6 +126,7 @@ export default function AdminProductsPage() {
       sold: 0,
       stock: 0,
     };
+    const restImages = (editing?.images ?? []).filter((img, i) => i > 0 && img !== draft.image);
     const next: Product = {
       ...base,
       name: draft.name.trim(),
@@ -123,6 +136,7 @@ export default function AdminProductsPage() {
       brandId: draft.brandId,
       stock: Number(draft.stock || 0),
       description: draft.description.trim(),
+      images: draft.image ? [draft.image, ...restImages] : restImages,
     };
     setRows((prev) => {
       const list = prev ?? seed;
@@ -176,7 +190,7 @@ export default function AdminProductsPage() {
                 <TableCell>
                   <span className="flex items-center gap-3">
                     <span className="relative block size-11 shrink-0 overflow-hidden rounded-lg bg-blush">
-                      <Image src={p.images[0]} alt={p.name} fill sizes="44px" className="object-cover" />
+                      <SafeImage src={p.images[0]} alt={p.name} fill sizes="44px" />
                     </span>
                     <span className="whitespace-normal">
                       <span className="block max-w-52 line-clamp-1 text-xs font-bold text-ink">{p.name}</span>
@@ -235,6 +249,7 @@ export default function AdminProductsPage() {
             <DialogDescription>اطلاعات اصلی محصول را وارد کنید.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
+            <ImageUpload label="تصویر محصول" value={draft.image} onChange={(url) => setDraft((d) => ({ ...d, image: url }))} />
             <div className="grid gap-1.5">
               <Label>نام محصول</Label>
               <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} />

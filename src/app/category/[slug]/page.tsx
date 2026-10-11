@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategories, getCategoryBySlug } from "@/lib/store-data";
 import { ShopView } from "@/components/store/ShopView";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SafeImage } from "@/components/SafeImage";
 
 export async function generateStaticParams() {
   const categories = await getCategories();
@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
             <p className="text-xs leading-relaxed text-muted-foreground md:text-sm">{category.description}</p>
           </div>
           <div className="absolute inset-y-0 end-0 hidden w-2/5 md:block">
-            <Image src={category.image} alt={category.name} fill sizes="40vw" className="object-cover" />
+            <SafeImage src={category.image} alt={category.name} fill sizes="40vw" />
             <div className="absolute inset-0 bg-gradient-to-r from-blush via-blush/30 to-transparent" />
           </div>
         </div>

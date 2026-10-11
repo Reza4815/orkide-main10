@@ -71,9 +71,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (demo) return;
     const supabase = createClient();
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.replace("/auth?next=/admin");
-    });
+    // Defer the auth check/navigation until after hydration so no router
+    // action is dispatched before the Next.js router is initialized.
+    const timer = setTimeout(() => {
+      void supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) router.replace("/auth?next=/admin");
+      });
+    }, 0);
+    return () => clearTimeout(timer);
   }, [demo, router]);
 
   const logout = () => {

@@ -37,14 +37,14 @@ export type Product = {
   stock: number;
 };
 
-export type Category = { id: string; slug: string; name: string; image: string; description: string };
+export type Category = { id: string; slug: string; name: string; image: string | null; description: string };
 export type Brand = { id: string; name: string; latinName: string };
 
 export type Banner = {
   id: string;
   title: string;
   subtitle: string;
-  image: string;
+  image: string | null;
   ctaLabel: string;
   ctaHref: string;
   badge: string;
@@ -66,7 +66,7 @@ export type BlogPost = {
   slug: string;
   title: string;
   excerpt: string;
-  cover: string;
+  cover: string | null;
   date: string;
   author: string;
   tags: string[];

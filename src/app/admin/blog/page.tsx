@@ -1,12 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { blogPostsQuery, type BlogPost } from "@/lib/store-data";
 import { formatFaDate, toFa } from "@/lib/format";
+import { SafeImage } from "@/components/SafeImage";
+import { ImageUpload } from "@/components/ImageUpload";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-type Draft = { title: string; excerpt: string; tags: string };
+type Draft = { title: string; excerpt: string; tags: string; cover: string | null };
 
 export default function AdminBlogPage() {
   const { data: seed = [] } = useQuery(blogPostsQuery);
@@ -34,17 +35,17 @@ export default function AdminBlogPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [deleting, setDeleting] = useState<BlogPost | null>(null);
-  const [draft, setDraft] = useState<Draft>({ title: "", excerpt: "", tags: "" });
+  const [draft, setDraft] = useState<Draft>({ title: "", excerpt: "", tags: "", cover: null });
 
   const openNew = () => {
     setEditing(null);
-    setDraft({ title: "", excerpt: "", tags: "" });
+    setDraft({ title: "", excerpt: "", tags: "", cover: null });
     setDialogOpen(true);
   };
 
   const openEdit = (p: BlogPost) => {
     setEditing(p);
-    setDraft({ title: p.title, excerpt: p.excerpt, tags: p.tags.join("، ") });
+    setDraft({ title: p.title, excerpt: p.excerpt, tags: p.tags.join("، "), cover: p.cover });
     setDialogOpen(true);
   };
 
@@ -55,13 +56,13 @@ export default function AdminBlogPage() {
     }
     const tags = draft.tags.split(/[،,]/).map((t) => t.trim()).filter(Boolean);
     const next: BlogPost = editing
-      ? { ...editing, title: draft.title.trim(), excerpt: draft.excerpt.trim(), tags }
+      ? { ...editing, title: draft.title.trim(), excerpt: draft.excerpt.trim(), tags, cover: draft.cover }
       : {
           id: `bp${Date.now()}`,
           slug: `post-${Date.now()}`,
           title: draft.title.trim(),
           excerpt: draft.excerpt.trim(),
-          cover: "/assets/blog-1.jpg",
+          cover: draft.cover,
           date: new Date().toISOString(),
           author: "تحریریه ارکیده",
           tags,
@@ -106,7 +107,7 @@ export default function AdminBlogPage() {
                 <TableCell>
                   <span className="flex items-center gap-3">
                     <span className="relative block size-11 shrink-0 overflow-hidden rounded-lg bg-blush">
-                      <Image src={p.cover} alt={p.title} fill sizes="44px" className="object-cover" />
+                      <SafeImage src={p.cover} alt={p.title} fill sizes="44px" />
                     </span>
                     <span className="block max-w-64 line-clamp-2 whitespace-normal text-xs font-bold leading-5 text-ink">
                       {p.title}
@@ -153,6 +154,7 @@ export default function AdminBlogPage() {
             <DialogDescription>عنوان، چکیده و برچسب‌های مطلب را وارد کنید.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
+            <ImageUpload label="تصویر شاخص" value={draft.cover} onChange={(url) => setDraft((d) => ({ ...d, cover: url }))} />
             <div className="grid gap-1.5">
               <Label>عنوان</Label>
               <Input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} />

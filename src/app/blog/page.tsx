@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft, Newspaper } from "lucide-react";
 import { getBlogPosts } from "@/lib/store-data";
 import { formatFaDate, toFa } from "@/lib/format";
+import { SafeImage } from "@/components/SafeImage";
 
 export const metadata: Metadata = {
   title: "وبلاگ",
@@ -33,12 +33,12 @@ export default async function BlogPage() {
             className="group overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_rgba(232,168,184,0.5)]"
           >
             <div className="relative h-48 overflow-hidden bg-blush md:h-52">
-              <Image
+              <SafeImage
                 src={post.cover}
                 alt={post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                className="transition-transform duration-700 group-hover:scale-110"
               />
               <span className="absolute bottom-3 start-3 rounded-full bg-background/85 px-2.5 py-1 text-[10px] text-muted-foreground backdrop-blur">
                 {formatFaDate(post.date)}

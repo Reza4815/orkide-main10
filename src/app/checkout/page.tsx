@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { SafeImage } from "@/components/SafeImage";
 
 const FREE_SHIPPING = 900_000;
 const SHIPPING_COST = 60_000;
@@ -297,7 +297,7 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <li key={item.key} className="flex items-center gap-3">
                   <span className="relative block size-12 shrink-0 overflow-hidden rounded-lg bg-blush">
-                    <Image src={item.image} alt={item.name} fill sizes="48px" className="object-cover" />
+                    <SafeImage src={item.image} alt={item.name} fill sizes="48px" />
                     <span className="absolute bottom-0.5 start-0.5 grid size-4 place-items-center rounded-full bg-ink/80 text-[9px] font-bold text-background">
                       {toFa(item.quantity)}
                     </span>

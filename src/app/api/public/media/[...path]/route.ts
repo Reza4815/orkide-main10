@@ -2,11 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Serves catalog media. When Supabase is configured, the request is proxied to
- * the public `media` storage bucket; otherwise it falls back to the local
- * /assets directory bundled with the app.
+ * the public `media` storage bucket. Otherwise it returns a 404: local assets
+ * no longer exist, all images must be uploaded via /admin into public/uploads.
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
@@ -16,9 +16,11 @@ export async function GET(
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const target = supabaseUrl
-    ? `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/media/${rel}`
-    : new URL(`/assets/${rel}`, request.nextUrl.origin).toString();
+  if (!supabaseUrl) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const target = `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/media/${rel}`;
 
   return NextResponse.redirect(target, { status: 302 });
 }

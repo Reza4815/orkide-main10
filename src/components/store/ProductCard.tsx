@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, Plus } from "lucide-react";
@@ -10,6 +9,7 @@ import { discountPercent, formatToman, toFa } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SafeImage } from "@/components/SafeImage";
 
 export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const { add } = useCart();
@@ -23,7 +23,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
       productId: product.id,
       name: product.name,
       slug: product.slug,
-      image: product.images[0],
+      image: product.images[0] ?? null,
       price: product.price,
       color: product.colors[0]?.name,
       size: product.sizes[0],
@@ -35,24 +35,24 @@ export function ProductCard({ product, priority = false }: { product: Product; p
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_rgba(232,168,184,0.5)]">
       <div className="relative aspect-[4/5] overflow-hidden bg-blush">
         <Link href={`/product/${product.slug}`} aria-label={product.name}>
-          <Image
+          <SafeImage
             src={product.images[0]}
             alt={product.name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
             priority={priority}
             className={cn(
-              "object-cover transition-transform duration-700 group-hover:scale-110",
+              "transition-transform duration-700 group-hover:scale-110",
               product.images[1] && "group-hover:opacity-0",
             )}
           />
           {product.images[1] && (
-            <Image
+            <SafeImage
               src={product.images[1]}
               alt=""
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover opacity-0 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
+              className="opacity-0 transition-all duration-700 group-hover:opacity-100 group-hover:scale-110"
             />
           )}
         </Link>

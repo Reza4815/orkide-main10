@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
@@ -13,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageUpload } from "@/components/ImageUpload";
+import { SafeImage } from "@/components/SafeImage";
 
 export default function AdminBannersPage() {
   const { data: seed = [] } = useQuery(bannersQuery);
@@ -20,13 +21,20 @@ export default function AdminBannersPage() {
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
   const banners = rows ?? seed;
   const [editing, setEditing] = useState<Banner | null>(null);
-  const [draft, setDraft] = useState({ title: "", subtitle: "", ctaLabel: "", ctaHref: "", badge: "" });
+  const [draft, setDraft] = useState<{ title: string; subtitle: string; ctaLabel: string; ctaHref: string; badge: string; image: string | null }>({
+    title: "",
+    subtitle: "",
+    ctaLabel: "",
+    ctaHref: "",
+    badge: "",
+    image: null,
+  });
 
   const isOn = (b: Banner) => enabled[b.id] ?? true;
 
   const openEdit = (b: Banner) => {
     setEditing(b);
-    setDraft({ title: b.title, subtitle: b.subtitle, ctaLabel: b.ctaLabel, ctaHref: b.ctaHref, badge: b.badge });
+    setDraft({ title: b.title, subtitle: b.subtitle, ctaLabel: b.ctaLabel, ctaHref: b.ctaHref, badge: b.badge, image: b.image });
   };
 
   const save = () => {
@@ -47,7 +55,7 @@ export default function AdminBannersPage() {
         {banners.map((b, i) => (
           <div key={b.id} className="overflow-hidden rounded-2xl border bg-card shadow-soft">
             <div className="relative h-40 bg-blush">
-              <Image src={b.image} alt={b.title} fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" />
+              <SafeImage src={b.image} alt={b.title} fill sizes="(max-width: 1024px) 100vw, 33vw" />
               <span className="absolute start-3 top-3 rounded-full bg-background/85 px-2.5 py-1 text-[10px] font-bold text-primary backdrop-blur">
                 اسلاید {toFa(i + 1)}
               </span>
@@ -85,6 +93,7 @@ export default function AdminBannersPage() {
             <DialogDescription>متن‌ها و مقصد دکمه بنر را تغییر دهید.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
+            <ImageUpload label="تصویر بنر" value={draft.image} onChange={(url) => setDraft((d) => ({ ...d, image: url }))} />
             <div className="grid gap-1.5">
               <Label>عنوان</Label>
               <Input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} />

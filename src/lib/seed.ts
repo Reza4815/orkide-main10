@@ -13,14 +13,14 @@ import type {
 } from "./store-data";
 
 export const categories: Category[] = [
-  { id: "c1", slug: "sootin", name: "سوتین", image: "/assets/p-bra.jpg", description: "انواع سوتین‌های توری، نخی و بدون درز با تن‌خور بی‌نقص و راحتی تمام‌روز." },
-  { id: "c2", slug: "short", name: "شورت", image: "/assets/p-set.jpg", description: "شورت‌های نخی، توری و بدون درز در طرح‌ها و رنگ‌های متنوع." },
-  { id: "c3", slug: "set", name: "ست سوتین و شورت", image: "/assets/hero-2.jpg", description: "ست‌های هماهنگ سوتین و شورت با دوخت ظریف و پارچه‌های درجه یک." },
-  { id: "c4", slug: "sleepwear", name: "لباس خواب", image: "/assets/p-nightgown.jpg", description: "لباس‌های خواب ساتن و نخی برای خوابی راحت و شیک." },
-  { id: "c5", slug: "robe", name: "روপوش و حوله‌ای", image: "/assets/p-robe.jpg", description: "روپوش‌های ساتن و مخمل با جزئیات توری برای لحظه‌های خاص." },
-  { id: "c6", slug: "shapewear", name: "گن و لاغری", image: "/assets/p-shapewear.jpg", description: "گن‌ها و لاغری‌های بدون درز با فرم‌دهی طبیعی زیر انواع لباس." },
-  { id: "c7", slug: "hosiery", name: "جوراب و ساق", image: "/assets/p-hosiery.jpg", description: "جوراب‌های شلواری، ساق‌دار و نخی با کیفیت ماندگار." },
-  { id: "c8", slug: "sport", name: "ورزشی", image: "/assets/p-set.jpg", description: "سوتین‌ها و ست‌های ورزشی با پشتیبانی مناسب برای تمرین." },
+  { id: "c1", slug: "sootin", name: "سوتین", image: null, description: "انواع سوتین‌های توری، نخی و بدون درز با تن‌خور بی‌نقص و راحتی تمام‌روز." },
+  { id: "c2", slug: "short", name: "شورت", image: null, description: "شورت‌های نخی، توری و بدون درز در طرح‌ها و رنگ‌های متنوع." },
+  { id: "c3", slug: "set", name: "ست سوتین و شورت", image: null, description: "ست‌های هماهنگ سوتین و شورت با دوخت ظریف و پارچه‌های درجه یک." },
+  { id: "c4", slug: "sleepwear", name: "لباس خواب", image: null, description: "لباس‌های خواب ساتن و نخی برای خوابی راحت و شیک." },
+  { id: "c5", slug: "robe", name: "روپوش و حوله‌ای", image: null, description: "روپوش‌های ساتن و مخمل با جزئیات توری برای لحظه‌های خاص." },
+  { id: "c6", slug: "shapewear", name: "گن و لاغری", image: null, description: "گن‌ها و لاغری‌های بدون درز با فرم‌دهی طبیعی زیر انواع لباس." },
+  { id: "c7", slug: "hosiery", name: "جوراب و ساق", image: null, description: "جوراب‌های شلواری، ساق‌دار و نخی با کیفیت ماندگار." },
+  { id: "c8", slug: "sport", name: "ورزشی", image: null, description: "سوتین‌ها و ست‌های ورزشی با پشتیبانی مناسب برای تمرین." },
 ];
 
 export const brands: Brand[] = [
@@ -43,7 +43,7 @@ export const products: Product[] = [
   {
     id: "p1", slug: "lace-bralette-rose", name: "سوتین توری رز مدل ماهور", brandId: "b1", categoryId: "c1",
     price: 685_000, compareAt: 820_000, colors: [lace, ivory, black], sizes: ["۷۵", "۸۰", "۸۵", "۹۰"],
-    images: ["/assets/p-bra.jpg", "/assets/hero-1.jpg", "/assets/hero-2.jpg"],
+    images: [],
     description: "سوتین توری ماهور با ترکیب پارچه تور فرانسوی و آستر نخی، بدون آزار پوست و با تن‌خور نرم طراحی شده است. بندهای قابل تنظیم و قزن‌های فلزی ضدحساسیت، تجربه‌ای لوکس و راحت را برای استفاده روزمره رقم می‌زنند. الگوی سه‌بعدی کاپ‌ها فرم طبیعی را حفظ می‌کند و زیر لباس‌های نازک اصلاً مشخص نمی‌شود.",
     specs: [
       { label: "جنس", value: "تور فرانسوی و نخ پنبه" },
@@ -57,7 +57,7 @@ export const products: Product[] = [
   {
     id: "p2", slug: "ivory-lace-set", name: "ست سوتین و شورت توری عروسکی", brandId: "b1", categoryId: "c3",
     price: 1_240_000, compareAt: 1_590_000, colors: [ivory, lace], sizes: ["S", "M", "L", "XL"],
-    images: ["/assets/p-set.jpg", "/assets/hero-2.jpg", "/assets/hero-1.jpg"],
+    images: [],
     description: "ست کامل سوتین و شورت با تور گل‌دار ظریف و یراق نقره‌ای، انتخابی خاص برای روزهای مهم. پارچه ضدحساسیت و دوخت تخت، راحتی مطلق را تضمین می‌کند و جزئیات دست‌دوز آن حس لباس سفارشی را منتقل می‌کند.",
     specs: [
       { label: "جنس", value: "تور گل‌دار و لایکرا" },
@@ -70,7 +70,7 @@ export const products: Product[] = [
   {
     id: "p3", slug: "satin-slip-champagne", name: "لباس خواب ساتن شامپاینی مدل شبنم", brandId: "b3", categoryId: "c4",
     price: 1_450_000, compareAt: null, colors: [ivory, mauve, wine], sizes: ["S", "M", "L"],
-    images: ["/assets/p-nightgown.jpg", "/assets/p-robe.jpg", "/assets/hero-3.jpg"],
+    images: [],
     description: "لباس خواب ساتن شبنم با ایستایی بی‌نظیر روی بدن و یقه توری ظریف، برای خوابی لوکس طراحی شده است. ساتن ابریشمی‌حس با خاصیت خنک‌کنندگی، در تمام فصل‌ها لذت‌بخش است و بندهای قابل تنظیم آن تن‌خور دلخواه شما را می‌سازد.",
     specs: [
       { label: "جنس", value: "ساتن ابریشمی" },
@@ -83,7 +83,7 @@ export const products: Product[] = [
   {
     id: "p4", slug: "seamless-shapewear", name: "گن بدون درز بلند مدل فرم", brandId: "b2", categoryId: "c6",
     price: 980_000, compareAt: 1_180_000, colors: [skin, black], sizes: ["M", "L", "XL", "2XL"],
-    images: ["/assets/p-shapewear.jpg", "/assets/p-hosiery.jpg"],
+    images: [],
     description: "گن بلند بدون درز با بافت فشرده هدفمند در ناحیه شکم و کمر، فرمی طبیعی زیر انواع لباس می‌سازد. الیاف تنفس‌پذیر و لبه‌های بدون لیز، مانع تاول و جا افتادن می‌شوند و برای استفاده طولانی‌مدت روزانه ایده‌آل است.",
     specs: [
       { label: "جنس", value: "نایلون و الاستان" },
@@ -96,7 +96,7 @@ export const products: Product[] = [
   {
     id: "p5", slug: "satin-robe-blush", name: "روپوش ساتن صورتی مدل ارغوان", brandId: "b1", categoryId: "c5",
     price: 1_680_000, compareAt: 1_980_000, colors: [lace, ivory, wine], sizes: ["Free"],
-    images: ["/assets/p-robe.jpg", "/assets/hero-3.jpg", "/assets/p-nightgown.jpg"],
+    images: [],
     description: "روپوش ساتن ارغوان با آستین‌های توردار و کمربند جداگانه، ترکیبی از ظرافت و راحتی است. جناح‌های توری روی سرآستین و پشت یقه، آن را به انتخابی شیک برای جهیزیه و هدیه تبدیل کرده است.",
     specs: [
       { label: "جنس", value: "ساتن و تور" },
@@ -109,7 +109,7 @@ export const products: Product[] = [
   {
     id: "p6", slug: "hose-ivory-trio", name: "ست سه‌تایی جوراب نخی لوکس", brandId: "b4", categoryId: "c7",
     price: 320_000, compareAt: 420_000, colors: [ivory, lace, skin], sizes: ["Free"],
-    images: ["/assets/p-hosiery.jpg", "/assets/p-shapewear.jpg"],
+    images: [],
     description: "ست سه‌عددی جوراب نخی با بافت ریز و مچ نرم، مناسب استفاده روزمره. نخ پنبه الیاف بلند، ضدبو و بسیار بادوام است و حالت‌پذیری بالایی پس از شست‌وشو دارد.",
     specs: [
       { label: "جنس", value: "نخ پنبه و الاستان" },
@@ -121,7 +121,7 @@ export const products: Product[] = [
   {
     id: "p7", slug: "cotton-brief-basic", name: "شورت نخی اسلیپ مدل روزانه", brandId: "b3", categoryId: "c2",
     price: 195_000, compareAt: null, colors: [ivory, skin, black, mauve], sizes: ["M", "L", "XL"],
-    images: ["/assets/p-set.jpg", "/assets/p-bra.jpg"],
+    images: [],
     description: "شورت اسلیپ نخی با کمر کش پهن و نرم، مناسب استفاده تمام‌روز. پارچه ۱۰۰٪ نخ پنبه رنگرزی شده و فرم خود را پس از شست‌وشو حفظ می‌کند.",
     specs: [
       { label: "جنس", value: "نخ پنبه ۱۰۰٪" },
@@ -133,7 +133,7 @@ export const products: Product[] = [
   {
     id: "p8", slug: "gift-box-mauve", name: "ست هدیه جعبه‌دار یاسی مدل جشن", brandId: "b2", categoryId: "c3",
     price: 2_150_000, compareAt: 2_690_000, colors: [mauve, ivory], sizes: ["S", "M", "L"],
-    images: ["/assets/hero-3.jpg", "/assets/p-set.jpg", "/assets/hero-2.jpg"],
+    images: [],
     description: "ست کامل هدیه در جعبه ابریشمی ارکیده شامل سوتین و شورت توری، کاغذ ابریشم و روبان ساتن. انتخابی ماندگار برای هدیه به عزیزترین‌ها با امکان درج کارت تبریک دست‌نویس.",
     specs: [
       { label: "محتویات", value: "سوتین، شورت و جعبه هدیه" },
@@ -145,7 +145,7 @@ export const products: Product[] = [
   {
     id: "p9", slug: "sport-bra-active", name: "سوتین ورزشی مدل اکتیو", brandId: "b5", categoryId: "c8",
     price: 745_000, compareAt: 890_000, colors: [black, mauve], sizes: ["S", "M", "L", "XL"],
-    images: ["/assets/p-bra.jpg", "/assets/p-shapewear.jpg"],
+    images: [],
     description: "سوتین ورزشی اکتیو با پشتیبانی متوسط تا بالا برای تمرین‌های هوازی و سالنی. پارچه خشک‌شونده سریع و بندهای پهن، فشار را یکنواخت می‌کند و مانع آسیب می‌شود.",
     specs: [
       { label: "جنس", value: "پلی‌استر و الاستان" },
@@ -157,7 +157,7 @@ export const products: Product[] = [
   {
     id: "p10", slug: "sleepwear-set-rose", name: "ست لباس خواب دوتکه صورتی", brandId: "b6", categoryId: "c4",
     price: 1_120_000, compareAt: null, colors: [lace, ivory], sizes: ["S", "M", "L", "XL"],
-    images: ["/assets/hero-1.jpg", "/assets/p-nightgown.jpg", "/assets/p-robe.jpg"],
+    images: [],
     description: "ست دوتکه لباس خواب شامل تاپ بنددار و شورتک ساتن با لبه‌های توری. سبک، خنک و لطیف؛ برای شب‌های تابستان و سفر.",
     specs: [
       { label: "جنس", value: "ساتن خنک" },
@@ -169,7 +169,7 @@ export const products: Product[] = [
   {
     id: "p11", slug: "tshirt-bra-nude", name: "سوتین بدون درز تی‌شرتی کرم", brandId: "b4", categoryId: "c1",
     price: 560_000, compareAt: 640_000, colors: [skin, ivory, black], sizes: ["۷۵", "۸۰", "۸۵"],
-    images: ["/assets/hero-2.jpg", "/assets/p-bra.jpg"],
+    images: [],
     description: "سوتین یک‌تکه بدون درز با کاپ فوم نازک، زیر تی‌شرت و لباس‌های چسبان کاملاً مخفی می‌ماند. انتخاب اول برای استفاده روزمره با حداکثر راحتی.",
     specs: [
       { label: "جنس", value: "میکرومدال" },
@@ -181,7 +181,7 @@ export const products: Product[] = [
   {
     id: "p12", slug: "bridal-ivory-set", name: "ست عروس سفید مرواریدی", brandId: "b2", categoryId: "c3",
     price: 2_890_000, compareAt: 3_450_000, colors: [ivory], sizes: ["S", "M", "L"],
-    images: ["/assets/hero-2.jpg", "/assets/p-set.jpg", "/assets/hero-3.jpg"],
+    images: [],
     description: "ست ویژه عروس با تور مرواریددوزی‌شده و آستین بلند شفاف. هر قطعه با دست تزئین شده و در جعبه خاص ارکیده عرضه می‌شود.",
     specs: [
       { label: "جنس", value: "تور مرواریدی" },
@@ -193,7 +193,7 @@ export const products: Product[] = [
   {
     id: "p13", slug: "shapewear-bodysuit", name: "بادی لاغری سرهمی مدل سلکت", brandId: "b5", categoryId: "c6",
     price: 1_350_000, compareAt: 1_620_000, colors: [skin, black], sizes: ["M", "L", "XL"],
-    images: ["/assets/p-shapewear.jpg", "/assets/hero-1.jpg"],
+    images: [],
     description: "بادی سرهمی لاغری با فشردگی لایه‌لایه که شکم، پهلو و کمر را هم‌زمان فرم می‌دهد. قزن پایین‌تنه برای استفاده راحت در طول روز طراحی شده است.",
     specs: [
       { label: "جنس", value: "نایلون فشرده" },
@@ -205,7 +205,7 @@ export const products: Product[] = [
   {
     id: "p14", slug: "knit-robe-long", name: "روپوش بلند مخمل مدل زمستانه", brandId: "b6", categoryId: "c5",
     price: 1_890_000, compareAt: null, colors: [wine, mauve, black], sizes: ["S", "M", "L", "XL"],
-    images: ["/assets/p-robe.jpg", "/assets/hero-3.jpg"],
+    images: [],
     description: "روپوش بلند مخمل نرم با آستر خز لبه‌ها، گرم و سبک برای روزهای سرد. جیب‌های پنهان و کمربند پهن آن را کاربردی می‌کند.",
     specs: [
       { label: "جنس", value: "مخمل کرشه" },
@@ -220,17 +220,17 @@ export const banners: Banner[] = [
   {
     id: "bn1", title: "مجموعه تازه‌ی بهار ارکیده رسید",
     subtitle: "طرح‌های توری ظریف با پارچه‌های ضدحساسیت؛ تجربه‌ای نرم و لوکس که شایسته‌ی شماست. تا ۷ روز ضمانت تعویض.",
-    image: "/assets/hero-1.jpg", ctaLabel: "مشاهده محصولات", ctaHref: "/shop", badge: "مجموعه جدید ارکیده",
+    image: null, ctaLabel: "مشاهده محصولات", ctaHref: "/shop", badge: "مجموعه جدید ارکیده",
   },
   {
     id: "bn2", title: "ست‌های عروسکی؛ برای ماندگارترین روزها",
     subtitle: "ست‌های کامل سوتین و شورت با دوخت دستی و بسته‌بندی هدیه، با ارسال رایگان در سراسر کشور.",
-    image: "/assets/hero-2.jpg", ctaLabel: "دیدن ست‌ها", ctaHref: "/category/set", badge: "پیشنهاد ویژه",
+    image: null, ctaLabel: "دیدن ست‌ها", ctaHref: "/category/set", badge: "پیشنهاد ویژه",
   },
   {
     id: "bn3", title: "هدیه بدهید، مثل همیشه درست انتخاب کنید",
     subtitle: "ست‌های جعبه‌دار ارکیده با کارت تبریک دست‌نویس؛ آماده‌ی ارسال همان‌روز در تهران.",
-    image: "/assets/hero-3.jpg", ctaLabel: "خرید ست هدیه", ctaHref: "/product/gift-box-mauve", badge: "هدیه‌های خاص",
+    image: null, ctaLabel: "خرید ست هدیه", ctaHref: "/product/gift-box-mauve", badge: "هدیه‌های خاص",
   },
 ];
 
@@ -257,7 +257,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: "bp1", slug: "bra-size-guide", title: "راهنمای کامل انتخاب سایز سوتین؛ عدد و حرف کاپ یعنی چه؟",
     excerpt: "۸۰٪ خانم‌ها سایز اشتباه سوتین می‌پوشند. در این راهنما یاد می‌گیرید چطور در خانه سایز دقیق خود را پیدا کنید.",
-    cover: "/assets/p-bra.jpg", date: "2025-12-18", author: "تحریریه ارکیده", tags: ["راهنمای خرید", "سایز"], readMinutes: 6,
+    cover: null, date: "2025-12-18", author: "تحریریه ارکیده", tags: ["راهنمای خرید", "سایز"], readMinutes: 6,
     content: [
       "شاید برای شما هم پیش آمده که سوتینی با ظاهر زیبا بخرید اما بعد از چند ساعت استفاده، فنر یا بند آن اذیت‌تان کند. دلیل اصلی این مشکل، انتخاب سایز اشتباه است؛ بر اساس پژوهش‌ها، اکثریت خانم‌ها سایز واقعی خود را نمی‌شناسند.",
       "سایز سوتین از دو بخش تشکیل می‌شود: عدد دور سینه (مثل ۷۵ یا ۸۰) که دور قفسه سینه درست زیر سینه است و حرف کاپ (مثل B یا C) که از اختلاف دور سینه و دور قفسه سینه به دست می‌آید. بهترین زمان اندازه‌گیری، وسط روز و بدون لباس ضخیم است.",
@@ -269,7 +269,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: "bp2", slug: "lace-care-tips", title: "چطور از لباس‌های توری و ساتن مراقبت کنیم؟",
     excerpt: "با چند نکته ساده شست‌وشو و نگهداری، عمر لباس‌های ظریف خود را دو برابر کنید.",
-    cover: "/assets/blog-1.jpg", date: "2025-11-30", author: "نگار محمدی", tags: ["مراقبت", "نگهداری"], readMinutes: 4,
+    cover: null, date: "2025-11-30", author: "نگار محمدی", tags: ["مراقبت", "نگهداری"], readMinutes: 4,
     content: [
       "لباس‌های توری و ساتن به دلیل بافت ظریف‌شان نیاز به مراقبت بیشتری دارند، اما خبر خوب این است که رعایت چند نکته ساده، عمر آن‌ها را چند برابر می‌کند.",
       "قانون اول: شست‌وشوی دستی با آب سرد یا ولرم. ماشین لباسشویی حتی در برنامه‌های ظریف هم به تور آسیب می‌زند. از شوینده‌های ملایم مخصوص لباس ظریف استفاده کنید و هرگز سفیدکننده به کار نبرید.",
@@ -280,7 +280,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: "bp3", slug: "sleepwear-trends", title: "ترندهای لباس خواب امسال؛ از ساتن مینیمال تا ست‌های دوتکه",
     excerpt: "نگاهی به محبوب‌ترین مدل‌های لباس خواب سال که در ویترین ارکیده هم پیدا می‌شوند.",
-    cover: "/assets/p-nightgown.jpg", date: "2025-10-12", author: "تحریریه ارکیده", tags: ["استایل", "ترند"], readMinutes: 5,
+    cover: null, date: "2025-10-12", author: "تحریریه ارکیده", tags: ["استایل", "ترند"], readMinutes: 5,
     content: [
       "لباس خواب دیگر فقط برای خواب نیست؛ بخشی از استایل خانگی و حتی سفر است. امسال چهار ترند اصلی را در کالکشن‌های جهانی می‌بینیم که هر چهار را در فروشگاه ارکیده هم گرد آورده‌ایم.",
       "ترند اول، ساتن مینیمال با یقه توری است؛ دقیقاً همان ترکیبی که در مدل شبنم می‌بینید. رنگ‌های شامپاینی، یاسی و زرشکی امسال جای صورتی‌های شاداب گذشته را گرفته‌اند.",

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard, ProductCardSkeleton } from "./ProductCard";
+import { SafeImage } from "@/components/SafeImage";
 
 const sampleReviews = [
   { author: "سارا م.", rating: 5, date: "2025-12-20", text: "کیفیت پارچه واقعاً عالیه، نرم و لطیف. سایزبندی دقیقه، حتماً از جدول سایز استفاده کنید." },
@@ -86,7 +86,7 @@ export function ProductView({ product }: { product: Product }) {
         productId: product.id,
         name: product.name,
         slug: product.slug,
-        image: product.images[0],
+        image: product.images[0] ?? null,
         price: product.price,
         color,
         size,
@@ -121,8 +121,11 @@ export function ProductView({ product }: { product: Product }) {
         {/* gallery */}
         <div className="space-y-3">
           <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/60 bg-blush shadow-soft transition-colors hover:border-primary/40">
+            {product.images.length === 0 && (
+              <SafeImage src={null} alt={product.name} fill sizes="(max-width: 1024px) 100vw, 50vw" />
+            )}
             {product.images.map((img, i) => (
-              <Image
+              <SafeImage
                 key={img + i}
                 src={img}
                 alt={product.name}
@@ -130,7 +133,7 @@ export function ProductView({ product }: { product: Product }) {
                 priority={i === 0}
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className={cn(
-                  "object-cover transition-all duration-500",
+                  "transition-all duration-500",
                   i === imageIdx ? "opacity-100" : "pointer-events-none opacity-0",
                 )}
               />
@@ -161,7 +164,7 @@ export function ProductView({ product }: { product: Product }) {
                     i === imageIdx ? "border-primary shadow-soft" : "border-transparent opacity-60 hover:opacity-100",
                   )}
                 >
-                  <Image src={img} alt="" fill sizes="80px" className="object-cover" />
+                  <SafeImage src={img} alt="" fill sizes="80px" className="object-cover" />
                 </button>
               ))}
             </div>

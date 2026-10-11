@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -7,6 +6,7 @@ import { getBlogPost, getBlogPosts } from "@/lib/store-data";
 import { formatFaDate, toFa } from "@/lib/format";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { SafeImage } from "@/components/SafeImage";
 
 export async function generateStaticParams() {
   const posts = await getBlogPosts();
@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         <div className="relative mt-6 h-60 overflow-hidden rounded-3xl border border-border/60 bg-blush shadow-soft md:h-80">
-          <Image src={post.cover} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+          <SafeImage src={post.cover} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" />
         </div>
 
         <div className="mt-8 space-y-5">
@@ -97,7 +97,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 className="group flex gap-4 rounded-3xl border border-border/60 bg-card p-3 shadow-soft transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_rgba(232,168,184,0.5)]"
               >
                 <span className="relative block h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-blush">
-                  <Image src={p.cover} alt={p.title} fill sizes="112px" className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <SafeImage src={p.cover} alt={p.title} fill sizes="112px" className="transition-transform duration-700 group-hover:scale-110" />
                 </span>
                 <span className="flex flex-col justify-center gap-1">
                   <span className="line-clamp-2 text-sm font-bold leading-6 text-ink group-hover:text-primary">{p.title}</span>

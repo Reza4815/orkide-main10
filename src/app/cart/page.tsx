@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronLeft, Minus, Plus, ShieldCheck, ShoppingBag, TicketPercent, Trash2, Truck } from "lucide-react";
@@ -11,6 +10,7 @@ import { formatToman, toFa } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { SafeImage } from "@/components/SafeImage";
 
 const FREE_SHIPPING = 900_000;
 const SHIPPING_COST = 60_000;
@@ -76,7 +76,7 @@ export default function CartPage() {
                 href={`/product/${item.slug}`}
                 className="relative block size-24 shrink-0 overflow-hidden rounded-xl bg-blush md:size-28"
               >
-                <Image src={item.image} alt={item.name} fill sizes="112px" className="object-cover" />
+                <SafeImage src={item.image} alt={item.name} fill sizes="112px" />
               </Link>
               <div className="flex flex-1 flex-col">
                 <div className="flex items-start justify-between gap-2">

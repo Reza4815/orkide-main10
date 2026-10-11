@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import {
@@ -22,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductCard, ProductCardSkeleton } from "./ProductCard";
+import { SafeImage } from "@/components/SafeImage";
 
 /* ---------------------------------- Hero ---------------------------------- */
 
@@ -73,13 +73,13 @@ export function Hero({ banners }: { banners: Banner[] }) {
                 </div>
               </div>
               <div className="absolute inset-0 md:relative md:inset-auto">
-                <Image
+                <SafeImage
                   src={b.image}
                   alt={b.title}
                   fill
                   priority={i === 0}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover opacity-25 md:opacity-100"
+                  className="opacity-25 md:opacity-100"
                 />
                 <div className="absolute inset-0 bg-gradient-to-l from-blush via-blush/40 to-transparent md:bg-none" />
               </div>
@@ -134,7 +134,7 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
             className="group flex shrink-0 flex-col items-center gap-2.5"
           >
             <span className="relative block size-20 overflow-hidden rounded-full border border-border/60 bg-blush shadow-soft transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-primary group-hover:shadow-[0_10px_30px_-10px_rgba(232,168,184,0.9)] md:size-24">
-              <Image src={c.image} alt={c.name} fill sizes="96px" className="object-cover transition-transform duration-700 group-hover:scale-110" />
+              <SafeImage src={c.image} alt={c.name} fill sizes="96px" className="transition-transform duration-700 group-hover:scale-110" />
             </span>
             <span className="text-xs font-medium text-muted-foreground transition-colors group-hover:text-primary md:text-sm">
               {c.name}
@@ -237,12 +237,12 @@ export function PromoCards({ categories }: { categories: Category[] }) {
               </span>
             </span>
             <span className="relative block h-20 w-16 shrink-0 overflow-hidden rounded-xl bg-card shadow-soft md:h-24 md:w-20">
-              <Image
+              <SafeImage
                 src={c.image}
                 alt={c.name}
                 fill
                 sizes="80px"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                className="transition-transform duration-500 group-hover:scale-110"
               />
             </span>
           </Link>
@@ -346,12 +346,12 @@ export function BlogSection({ posts }: { posts: BlogPost[] }) {
             className="group overflow-hidden rounded-3xl border border-border/60 bg-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-[0_8px_40px_-12px_rgba(232,168,184,0.5)]"
           >
             <div className="relative h-44 overflow-hidden bg-blush">
-              <Image
+              <SafeImage
                 src={post.cover}
                 alt={post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                className="transition-transform duration-700 group-hover:scale-110"
               />
               <span className="absolute bottom-3 start-3 rounded-full bg-background/85 px-2.5 py-1 text-[10px] text-muted-foreground backdrop-blur">
                 {formatFaDate(post.date)}
